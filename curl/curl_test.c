@@ -9,6 +9,8 @@
 //    Macro declarations
 // /////////////////////////////////////////////////////////////////////////////
 
+#define CA_PATH "./"
+
 
 // /////////////////////////////////////////////////////////////////////////////
 //    Type declarations
@@ -39,6 +41,18 @@ void http_post(int id)
     pCurl = curl_easy_init();
     if ( pCurl )
     {
+        /* set the path of CA certificate */
+        curl_easy_setopt(
+            pCurl,
+            CURLOPT_CAPATH,
+            CA_PATH
+        );
+        curl_easy_setopt(
+            pCurl,
+            CURLOPT_SSL_VERIFYPEER,
+            0L
+        );
+
         /* URL */
         curl_easy_setopt(
             pCurl,
@@ -132,6 +146,18 @@ void http_get(int id)
         );
         /* pass user data to the callback function */
         curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, NULL);
+
+        /* set the path of CA certificate */
+        curl_easy_setopt(
+            pCurl,
+            CURLOPT_CAPATH,
+            CA_PATH
+        );
+        curl_easy_setopt(
+            pCurl,
+            CURLOPT_SSL_VERIFYPEER,
+            0L
+        );
 
         /* URL */
         sprintf(url, "http://localhost:3000/movies/%d", id);
