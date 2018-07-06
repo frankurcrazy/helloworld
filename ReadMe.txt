@@ -40,7 +40,12 @@ git init
 
 # Create a working copy of a repository
 cd ~/bar_repos
-git clone http://xxx.xxx.xxx/bar.git
+
+# Clone with HTTP
+git clone https://github.com/parrotshen/helloworld.git
+
+# Clone with SSH
+git git@github.com:parrotshen/helloworld.git
 
 
 [ Sync. to the remote ]

@@ -7,14 +7,16 @@
 int main(int argc, char *argv[])
 {
    FILE *pFile = NULL;
-   unsigned char  byte;
+   unsigned char  byte = 0;
    unsigned int   size;
    unsigned int   i;
+   int  pattern = 0;
 
 
-   if (argc != 3)
+   if (argc < 3)
    {
       printf("Usage: binmega FILE_OUT MEGA_BYTES\n");
+      printf("     : binmega FILE_OUT MEGA_BYTES PATTERN\n");
       printf("\n");
       return 0;
    }
@@ -28,10 +30,19 @@ int main(int argc, char *argv[])
 
    size = (atoi( argv[2] ) << 20);
 
+   if (argc >= 4)
+   {
+       byte = (atoi( argv[3] ) & 0xFF);
+       pattern = 1;
+   }
+
    srand( (int)time(0) );
    for (i=0; i<size; i++)
    {
-      byte = (unsigned char)(256.0 * rand() / (RAND_MAX));
+      if (0 == pattern)
+      {
+          byte = (unsigned char)(256.0 * rand() / (RAND_MAX));
+      }
       fwrite(&byte, 1, 1, pFile);
    }
 
