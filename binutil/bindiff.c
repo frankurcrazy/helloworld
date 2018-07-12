@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "utility.h"
 
+#define MAX_DISPLAY_ITEMS  (32)
 
 int main(int argc, char *argv[])
 {
@@ -29,13 +30,13 @@ int main(int argc, char *argv[])
     lenB = filesize( argv[2] );
     cmpSize = ((lenA > lenB) ? lenB : lenA);
 
-    if ((pFileA=fopen(argv[1], "rb")) == NULL)
+    if ((pFileA=fopen(argv[1], "r")) == NULL)
     {
         printf("ERR: cannot open %s\n", argv[1]);
         return -1;
     }
 
-    if ((pFileB=fopen(argv[2], "rb")) == NULL)
+    if ((pFileB=fopen(argv[2], "r")) == NULL)
     {
         printf("ERR: cannot open %s\n", argv[2]);
         fclose( pFileA );
@@ -51,10 +52,10 @@ int main(int argc, char *argv[])
         if (byteA != byteB)
         {
             count++;
-            if (count <= 10)
+            if (count <= MAX_DISPLAY_ITEMS)
             {
                 printf(
-                    "#%d (%02X <--> %02X) at 0x%X\n",
+                    "#%2d (%02X <--> %02X) at 0x%X\n",
                     count,
                     byteA,
                     byteB,
@@ -64,6 +65,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (count > MAX_DISPLAY_ITEMS)
+    {
+        printf(" ...\n");
+    }
     printf("Total has %d difference(s)\n\n", count);
 
     fclose( pFileA );

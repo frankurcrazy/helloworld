@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     totalLen = filesize( argv[1] );
     offset   = 0;
 
-    if ((pFileIn=fopen(argv[1], "rb")) == NULL)
+    if ((pFileIn=fopen(argv[1], "r")) == NULL)
     {
         printf("ERR: cannot open %s\n", argv[1]);
         return -1;

@@ -27,7 +27,7 @@ void merge(char *pFileOut)
     unsigned int  j;
     int   i;
 
-    if ((pOutput=fopen(pFileOut, "wb")) == NULL)
+    if ((pOutput=fopen(pFileOut, "w")) == NULL)
     {
         printf("Exit: cannot open file '%s'\n", pFileOut);
         printf("\n");
@@ -50,7 +50,7 @@ void merge(char *pFileOut)
         //    break;
         //}
 
-        if ((pInput=fopen(g_fileName[i], "rb")) == NULL)
+        if ((pInput=fopen(g_fileName[i], "r")) == NULL)
         {
             printf("ERR: cannot open file %s\n", g_fileName[i]);
             printf("\n");

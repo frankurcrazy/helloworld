@@ -49,7 +49,15 @@ int main(int argc, char *argv[])
                 i++;
                 if (i < argc)
                 {
-                    offset = atoi( argv[i] );
+                    if ((strlen(argv[i]) > 2) &&
+                        (argv[i][0] == '0') && (argv[i][1] == 'x'))
+                    {
+                        sscanf(argv[i], "0x%lx", &offset);
+                    }
+                    else
+                    {
+                        offset = atoi( argv[i] );
+                    }
                     i++;
                 }
             }
@@ -76,7 +84,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    pFile = fopen(pInput, "rb");
+    pFile = fopen(pInput, "r");
     if (NULL == pFile)
     {
         printf("ERR: cannot open file %s\n", pInput);
@@ -91,11 +99,14 @@ int main(int argc, char *argv[])
     }
     for (i=0; i<size; i++)
     {
+        if ((length > 0) && (i >= length)) break;
+
         fread(&byte, 1, 1, pFile);
 
-        if ((i != 0) && ((i % 16) == 0))
+        if ((i % 16) == 0)
         {
-            printf("\n");
+            if (i != 0) printf("\n");
+            printf("%08lX :", i);
         }
 
         if (( chFlag ) &&
@@ -107,11 +118,9 @@ int main(int argc, char *argv[])
         {
             printf(" %02X", byte);
         }
-
-        if ((length > 0) && (i >= length)) break;
     }
     printf("\n");
-    printf(" (%ld bytes)\n", i);
+    printf("(%ld bytes)\n", i);
     printf("\n");
 
     fclose( pFile );

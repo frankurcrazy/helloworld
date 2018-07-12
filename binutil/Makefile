@@ -3,8 +3,14 @@ CFLAGS = -Wall
 LDFLAGS = -Wall
 
 
-all: binfind bindiff bindump bingen bincpy bincomb binmega
+APPS = binxor binfind bindiff bindump binedit bingen bincpy bincomb binmega
 
+
+all: $(APPS)
+
+
+binxor: binxor.o utility.o
+	$(CC) $(LDFLAGS) $^ -o $@
 
 binfind: binfind.o utility.o
 	$(CC) $(LDFLAGS) $^ -o $@
@@ -13,6 +19,9 @@ bindiff: bindiff.o utility.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
 bindump: bindump.o utility.o
+	$(CC) $(LDFLAGS) $^ -o $@
+
+binedit: binedit.o utility.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
 bingen: bingen.o utility.o
@@ -33,7 +42,7 @@ binmega: binmega.o utility.o
 
 
 clean:
-	@rm -f binfind bindiff bindump bingen bincpy bincomb binmega
+	@rm -f $(APPS)
 	@rm -f *.o
 
 .PHONY: all clean

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "utility.h"
 
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
     }
 
 
-    if ((pFileIn=fopen(argv[1], "rb")) == NULL)
+    if ((pFileIn=fopen(argv[1], "r")) == NULL)
     {
         fprintf(
             stdout,
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if ((pFileOut=fopen(argv[2], "wb")) == NULL)
+    if ((pFileOut=fopen(argv[2], "w")) == NULL)
     {
         fprintf(
             stdout,
@@ -43,8 +44,25 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    start  = atoi( argv[3] );
-    length = atoi( argv[4] );
+    if ((strlen(argv[3]) > 2) &&
+        (argv[3][0] == '0') && (argv[3][1] == 'x'))
+    {
+        sscanf(argv[3], "0x%x", &start);
+    }
+    else
+    {
+        start = atoi( argv[3] );
+    }
+
+    if ((strlen(argv[4]) > 2) &&
+        (argv[4][0] == '0') && (argv[4][1] == 'x'))
+    {
+        sscanf(argv[4], "0x%x", &length);
+    }
+    else
+    {
+        length = atoi( argv[4] );
+    }
 
     if (start > 0)
     {

@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
       return 0;
    }
 
-   if ((pFile=fopen(argv[1], "wb")) == NULL)
+   if ((pFile=fopen(argv[1], "w")) == NULL)
    {
       printf("Exit: cannot open file %s\n", argv[1]);
       printf("\n");

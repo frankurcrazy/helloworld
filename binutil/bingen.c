@@ -33,14 +33,14 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    pFileIn = fopen(argv[1], "rb");
+    pFileIn = fopen(argv[1], "r");
     if (NULL == pFileIn)
     {
         printf("ERR: cannot open file %s\n", argv[1]);
         return 0;
     }
 
-    pFileOut = fopen(argv[2], "wb");
+    pFileOut = fopen(argv[2], "w");
     if (NULL == pFileOut)
     {
         printf("ERR: cannot open file %s\n", argv[2]);
