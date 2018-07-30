@@ -10,7 +10,7 @@ void help(void)
     printf("\n");
     printf("  -b        NPDSCH carries BCCH.\n");
     printf("  -s N_SF   Number of subframe (1, 2, 3, 4, 5, 6, 8, 10).\n");
-    printf("  -n N_Rep  Number of repetition\n");
+    printf("  -r N_Rep  Number of repetition\n");
     printf("            (1, 2, 4, 8, 16, 32, 64, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048).\n");
     printf("  -h        Show the help message.\n");
     printf("\n");
