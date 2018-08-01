@@ -45,7 +45,7 @@ cd ~/bar_repos
 git clone https://github.com/parrotshen/helloworld.git
 
 # Clone with SSH
-git git@github.com:parrotshen/helloworld.git
+git clone git@github.com:parrotshen/helloworld.git
 
 
 [ Sync. to the remote ]
