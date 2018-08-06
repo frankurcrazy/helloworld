@@ -88,6 +88,9 @@ git tag -l
 git tag -a tag_name -m "comments"
 git push origin tag_name
 
+# Show the tag log
+git show tag_name
+
 # Fetch the lastest history
 git reset --hard tag_name
 
