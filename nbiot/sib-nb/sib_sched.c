@@ -75,7 +75,7 @@ void setSubframe(uint16 cellIdLsb, uint16 repNum)
                 /* repetition 64 frames */
                 for (i=0; i<16; i++)
                 {
-                    if (cellIdLsb == (j & 0x3))
+                    if ((cellIdLsb == (j & 0x3)) && (0 == (i & 0x1)))
                     {
                         g_subframeMask[frame] = 0x010;
                     }
@@ -98,7 +98,7 @@ void setSubframe(uint16 cellIdLsb, uint16 repNum)
                 /* repetition 128 frames */
                 for (i=0; i<16; i++)
                 {
-                    if (cellIdLsb == (j & 0x1))
+                    if ((cellIdLsb == (j & 0x1)) && (0 == (i & 0x1)))
                     {
                         g_subframeMask[frame] = 0x010;
                     }
@@ -116,7 +116,14 @@ void setSubframe(uint16 cellIdLsb, uint16 repNum)
         for (i=0; i<1024; i++)
         {
             /* repetition every frame */
-            g_subframeMask[frame] = 0x010;
+            if (cellIdLsb == (i & 0x1))
+            {
+                g_subframeMask[frame] = 0x010;
+            }
+            else
+            {
+                g_subframeMask[frame] = 0;
+            }
             frame++;
         }
     }
@@ -134,21 +141,23 @@ void schedSib1Nb(uint16 cellIdLsb, int startFrm)
         {
             if (g_subframeMask[i] & (0x1 << j))
             {
+                /* nf mod 256 */
                 if ((i & 0xFF) == startFrm)
                 {
                     g_repIndex = 0;
                 }
 
+                /* every other frame in 16 continuous frames */
                 if (1 == startFrm)
                 {
-                    blockIndex = ((i + 15) & 0xF);
+                    blockIndex = (((i + 15) & 0xF) >> 1);
                 }
                 else
                 {
-                    blockIndex = (i & 0xF);
+                    blockIndex = ((i & 0xF) >> 1);
                 }
 
-                /* start a new SIB1-NB at this subframe */
+                /* start SIB1-NB transmission at this subframe */
                 if (0 == blockIndex)
                 {
                     if (0 == g_repIndex)
@@ -156,12 +165,12 @@ void schedSib1Nb(uint16 cellIdLsb, int startFrm)
                         printf("\n");
                         printf("SIB1-NB repetition\n");
                     }
-                    printf("  %2d:", g_repIndex);
+                    printf("  [1;36m%2d[0m:", g_repIndex);
                     g_repIndex++;
                 }
 
                 printf(" %4d", i);
-                if (15 == blockIndex) printf("\n");
+                if (7 == blockIndex) printf("\n");
             }
         }
     }
@@ -222,7 +231,9 @@ int main(int argc, char *argv[])
 
     schedSib1Nb(cellIdLsb, startFrm);
 
-    printf("TB size = %d bits\n\n", tbSize);
+    printf("N_SF = [1;33m%d[0m\n", 8);
+    printf("N_Rep = [1;33m%d[0m\n", repNum);
+    printf("TB size = [1;33m%d[0m bits\n\n", tbSize);
 
     return 0;
 }
