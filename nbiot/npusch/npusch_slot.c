@@ -26,6 +26,9 @@ int  g_countSlot = 0;
 int  g_countRu = 0;
 int  g_countRep = 0;
 int  g_countM = 0;
+int  g_ruSeq = 0;
+int  g_scrambFrame = 0;
+int  g_scrambSlot = 0;
 
 
 int npusch_sched(
@@ -53,6 +56,9 @@ int npusch_sched(
         g_countRu = pNpusch->ruNum;
         g_countRep = pNpusch->repNum;
         g_countM = pNpusch->mIdent;
+        g_ruSeq = 0;
+        g_scrambFrame = frmNum;
+        g_scrambSlot = slotNum;
         if (pNpusch->mIdent > 1)
         {
             printf("M_NPUSCH_identical - 1 = [1;35m%d[0m\n", (pNpusch->mIdent - 1));
@@ -67,17 +73,20 @@ int npusch_sched(
             {
                 if (g_countSlot > 0)
                 {
-                    if ((g_blockIndex == 0) && (g_countM == pNpusch->mIdent))
+                    if ((0 == (g_blockIndex % pNpusch->ruSlot)) && (g_countM == pNpusch->mIdent))
                     {
                         printf("(%d.%d) ", frmNum, subFrmNum);
                     }
+
                     if (g_countM == pNpusch->mIdent)
                     {
-                        printf("[1;33m %d[0m", g_blockIndex);
+                        g_scrambFrame = frmNum;
+                        g_scrambSlot = slotNum;
+                        printf("[1;33m %3d[0m", g_blockIndex);
                     }
                     else
                     {
-                        printf(" %d", g_blockIndex);
+                        printf(" %3d", g_blockIndex);
                     }
 
                     g_countSlot -= 2;
@@ -90,13 +99,33 @@ int npusch_sched(
                     g_countM--;
                     if (g_countM <= 0)
                     {
+                        #if 1
+                        printf(
+                            " (ns [1;32m%2d[0m)",
+                            g_scrambSlot
+                        );
+                        #endif
+
                         g_blockIndex += 2;
                         g_countM = pNpusch->mIdent;
+
+                        if (0 == (g_blockIndex % pNpusch->ruSlot))
+                        {
+                            /* one RU was finished */
+                            if (g_blockIndex < (pNpusch->ruSlot * pNpusch->ruNum))
+                            {
+                                printf("  RU #%d", ++g_ruSeq);
+                                if (g_ruSeq >= pNpusch->ruNum)
+                                {
+                                    g_ruSeq = 0;
+                                }
+                            }
+                            printf("\n");
+                        }
 
                         if (g_blockIndex >= (pNpusch->ruSlot * pNpusch->ruNum))
                         {
                             g_blockIndex = 0;
-                            printf("\n");
                         }
                     }
                 }
@@ -121,19 +150,26 @@ int npusch_sched(
         {
             if (g_countRu > 0)
             {
+                if (0 == g_blockIndex)
+                {
+                    g_scrambFrame = frmNum;
+                    g_scrambSlot = slotNum;
+                }
+
                 if (g_countSlot > 0)
                 {
                     if ((g_countSlot == pNpusch->ruSlot) && (0 == g_2msFlag))
                     {
                         printf("(%d.%d) ", frmNum, subFrmNum);
                     }
+
                     if (g_countRep == pNpusch->repNum)
                     {
-                        printf("[1;33m %d[0m", g_blockIndex);
+                        printf("[1;33m %3d[0m", g_blockIndex);
                     }
                     else
                     {
-                        printf(" %d", g_blockIndex);
+                        printf(" %3d", g_blockIndex);
                     }
 
                     if (12 == pNpusch->npuschScNum)
@@ -150,6 +186,20 @@ int npusch_sched(
 
                     if (g_countSlot <= 0)
                     {
+                        /* one RU was finished */
+                        printf("  RU #%d", ++g_ruSeq);
+                        if (g_ruSeq >= pNpusch->ruNum)
+                        {
+                            g_ruSeq = 0;
+                        }
+                        if (g_countRu == pNpusch->ruNum)
+                        {
+                            printf(
+                                " (nf [1;32m%d[0m, ns [1;32m%d[0m)",
+                                g_scrambFrame,
+                                g_scrambSlot
+                            );
+                        }
                         g_countSlot = pNpusch->ruSlot;
                         g_countRu--;
                         printf("\n");
@@ -269,7 +319,7 @@ int main(int argc, char *argv[])
             }
             else if (6 == npusch.ruScNum)
             {
-                npusch.ruSlot = 12;
+                npusch.ruSlot = 4;
             }
             else if (12 == npusch.ruScNum)
             {

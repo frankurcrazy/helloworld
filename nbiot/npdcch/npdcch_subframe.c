@@ -351,7 +351,7 @@ void type2Common(int Rmax, int G, int alpha, int repNum, int verbose)
 
 void help(void)
 {
-    printf("Usage: subframe_k [OPTION]...\n");
+    printf("Usage: npdcch_subframe [OPTION]...\n");
     printf("\n");
     printf("  -c type    Search space type.\n");
     printf("               0: USS\n");
