@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     printf("RB number = %d\n", rb);
     printf("TB size   = %d bits\n", bits);
     printf("Modulaton = %s\n", ((Qm == 2) ? "QPSK"  :
-                                (Qm == 4) ? "16QAM" : "64QAM"));
+                                (Qm == 4) ? "16QAM" : "16QAM / 64QAM"));
 
     mbps = (double)(bits * 1000);
     if ( mimo ) mbps = (mbps * 2);

@@ -1,10 +1,21 @@
 CC = gcc
 CFLAGS = -Wall
 
-all: sib_sched
+APPS = sib_sched sib1nb sib2nb
 
-sib_sched: sib_sched.c
-	$(CC) $(CFLAGS) $< -o $@
+all: $(APPS)
+
+sib_sched: sib_sched.o sib_common.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+sib1nb: sib1nb.o sib_common.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+sib2nb: sib2nb.o sib_common.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+%.o: %.c sib_common.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f sib_sched
+	rm -f $(APPS) *.o

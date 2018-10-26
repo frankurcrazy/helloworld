@@ -5,15 +5,66 @@
 #include "sib_common.h"
 
 
-#define RESERVED_SUBFRAME(frm, subFrm) \
-    ((0 == subFrm) || \
-     (5 == subFrm) || \
-     ((0 == (frm & 0x1)) && (9 == subFrm)))
+/* SIB2-NB repetition control */
+uint16  g_repIndex = 0;
+
+
+void showSib2Nb(int N_SF, int N_Rep)
+{
+    int blockIndex = 0;
+    int n_abs_sf;
+    int i;
+    int j;
+    int k;
+
+
+    printf("SIB2-NB occupied SFN/SF:\n");
+    k = 0;
+    for (i=0; i<1024; i++)
+    {
+        for (j=0; j<10; j++)
+        {
+            if (g_sib2Subframe[i] & (0x1 << j))
+            {
+                n_abs_sf = ((i * 10) + j);
+
+                if ((i != 0) && (k == 0)) printf("\n");
+
+                /* start SIB2-NB transmission at this subframe */
+                #if 1
+                if (0 == blockIndex)
+                {
+                    printf("(%2d) ", g_repIndex);
+                    g_repIndex++;
+                    if (g_repIndex >= N_Rep) g_repIndex = 0;
+                }
+                #endif
+
+                if (0 == (g_sib2Repetition[i] & (0x1 << j)))
+                {
+                    printf(" [1;35m%4d[0m", n_abs_sf);
+                }
+                else
+                {
+                    printf(" %4d", n_abs_sf);
+                }
+
+                k = (k + 1) & 0x7;
+                blockIndex++;
+                if (blockIndex >= 8)
+                {
+                    blockIndex = 0;
+                }
+            }
+        }
+    }
+    printf("\n\n");
+}
 
 
 void help(void)
 {
-    printf("Usage: sib_sched [OPTION]...\n");
+    printf("Usage: sib2nb [OPTION]...\n");
     printf("\n");
     printf("  -c cellId       Cell ID.\n");
     printf("  -s sib1Sched    SIB1-NB scheduling info (0 ~ 11).\n");
@@ -36,11 +87,9 @@ int main(int argc, char *argv[])
     int repetition = 4;
     int tbSize = 208;
     int window = 160;
-
-    int n_abs_sf;
+    int N_SF;
+    int N_Rep;
     int ch;
-    int i;
-    int j;
 
 
     opterr = 0;
@@ -122,59 +171,19 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    N_SF = 8;
+    N_Rep = (window / (repetition * 10));
+
     sib1Nb_schedule(cellId, sib1Sched, NULL, NULL, NULL);
 
     sib2Nb_schedule(period, repetition, window);
 
-    printf("SIB[1;31m1[0m-NB, SIB[1;33m2[0m-NB scheduling:\n\n");
-    printf("     |  0  1  2  3  4  5  6  7  8  9\n");
-    printf("-----+--------------------------------\n");
-    for (i=0; i<1024; i++)
-    {
-        printf("%4d | ", i);
-        for (j=0; j<10; j++)
-        {
-            n_abs_sf = ((i * 10) + j);
+    showSib2Nb(N_SF, N_Rep);
 
-            if (0 == (n_abs_sf % window))
-            {
-                printf("[1;32m[[0m");
-            }
-            else
-            {
-                printf(" ");
-            }
-
-            if ( RESERVED_SUBFRAME(i, j) )
-            {
-                printf("x");
-            }
-            else if (g_sib1Subframe[i] & (0x1 << j))
-            {
-                printf("[1;31m1[0m");
-            }
-            else if (g_sib2Subframe[i] & (0x1 << j))
-            {
-                printf("[1;33m2[0m");
-            }
-            else
-            {
-                printf(" ");
-            }
-
-            if ((window - 1) == (n_abs_sf % window))
-            {
-                printf("[1;32m][0m");
-            }
-            else
-            {
-                printf(" ");
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
-
+    printf("N_SF = [1;33m%d[0m\n", N_SF);
+    printf("N_Rep = [1;33m%d[0m\n", N_Rep);
+    printf("TB size = [1;33m%d[0m bits\n\n", tbSize);
 
     return 0;
 }
+

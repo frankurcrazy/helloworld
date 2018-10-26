@@ -7,198 +7,7 @@
 #include "npdcch_common.c"
 
 
-char *G2str(int G)
-{
-    char *str = NULL;
-
-    if (3 == G)
-    {
-        str = _GStr[0];
-    }
-    else if (4 == G)
-    {
-        str = _GStr[1];
-    }
-    else if (8 == G)
-    {
-        str = _GStr[2];
-    }
-    else if (16 == G)
-    {
-        str = _GStr[3];
-    }
-    else if (32 == G)
-    {
-        str = _GStr[4];
-    }
-    else if (64 == G)
-    {
-        str = _GStr[5];
-    }
-    else if (96 == G)
-    {
-        str = _GStr[6];
-    }
-    else if (128 == G)
-    {
-        str = _GStr[7];
-    }
-
-    return str;
-}
-
-char *alpha2str(int alpha)
-{
-    return _alphaStr[alpha & 0x3];
-}
-
-
-int Rmax2R(int type, int Rmax, int repNum)
-{
-    int R = 0;
-
-    if (0 == type)
-    {
-        int div[4] = { 8, 4, 2, 1 };
-
-        /* UE-specific search space (Table 16.6-1) */
-        switch ( Rmax )
-        {
-            case 1:
-                R = 1;
-                break;
-            case 2:
-                R = ((repNum & 0x1) + 1);
-                break;
-            case 4:
-                if ((repNum & 0x3) > 0)
-                {
-                    R = ((repNum & 0x3) << 1);
-                }
-                else
-                {
-                    R = 1;
-                }
-                break;
-            case 8:
-            case 16:
-            case 32:
-            case 64:
-            case 128:
-            case 256:
-            case 512:
-            case 1024:
-            case 2048:
-                R = (Rmax / div[repNum & 0x3]);
-                break;
-            default:
-                ;
-        }
-    }
-    else if (1 == type)
-    {
-        int Rtable[12][8] = {
-            { 1, 0,  0,   0,   0,   0,    0,    0 },
-            { 1, 2,  0,   0,   0,   0,    0,    0 },
-            { 1, 2,  4,   0,   0,   0,    0,    0 },
-            { 1, 2,  4,   8,   0,   0,    0,    0 },
-            { 1, 2,  4,   8,  16,   0,    0,    0 },
-            { 1, 2,  4,   8,  16,  32,    0,    0 },
-            { 1, 2,  4,   8,  16,  32,   64,    0 },
-            { 1, 2,  4,   8,  16,  32,   64,  128 },
-            { 1, 4,  8,  16,  32,  64,  128,  256 },
-            { 1, 4, 16,  32,  64, 128,  256,  512 },
-            { 1, 8, 32,  64, 128, 256,  512, 1024 },
-            { 1, 8, 64, 128, 256, 512, 1024, 2048 }
-        };
-
-        /* Type1 Common search space */
-        switch ( Rmax )
-        {
-            case 1:
-                R = Rtable[0][repNum & 0x7];
-                break;
-            case 2:
-                R = Rtable[1][repNum & 0x7];
-                break;
-            case 4:
-                R = Rtable[2][repNum & 0x7];
-                break;
-            case 8:
-                R = Rtable[3][repNum & 0x7];
-                break;
-            case 16:
-                R = Rtable[4][repNum & 0x7];
-                break;
-            case 32:
-                R = Rtable[5][repNum & 0x7];
-                break;
-            case 64:
-                R = Rtable[6][repNum & 0x7];
-                break;
-            case 128:
-                R = Rtable[7][repNum & 0x7];
-                break;
-            case 256:
-                R = Rtable[8][repNum & 0x7];
-                break;
-            case 512:
-                R = Rtable[9][repNum & 0x7];
-                break;
-            case 1024:
-                R = Rtable[10][repNum & 0x7];
-                break;
-            case 2048:
-                R = Rtable[11][repNum & 0x7];
-                break;
-            default:
-                ;
-        }
-    }
-    else if (2 == type)
-    {
-        int div[4] = { 8, 4, 2, 1 };
-
-        /* Type2 Common search space */
-        switch ( Rmax )
-        {
-            case 1:
-                R = 1;
-                break;
-            case 2:
-                R = ((repNum & 0x1) + 1);
-                break;
-            case 4:
-                if ((repNum & 0x3) > 0)
-                {
-                    R = ((repNum & 0x3) << 1);
-                }
-                else
-                {
-                    R = 1;
-                }
-                break;
-            case 8:
-            case 16:
-            case 32:
-            case 64:
-            case 128:
-            case 256:
-            case 512:
-            case 1024:
-            case 2048:
-                R = (Rmax / div[repNum & 0x3]);
-                break;
-            default:
-                ;
-        }
-    }
-
-    return R;
-}
-
-
-void ueSpecific(int Rmax, int G, int alpha, int repNum, int verbose)
+void searchSpace(int type, int Rmax, int G, int alpha, int repNum, int verbose)
 {
     int T;
     int alphaT;
@@ -208,144 +17,95 @@ void ueSpecific(int Rmax, int G, int alpha, int repNum, int verbose)
 
     int R;
     int U;
+    int r;
     int u;
     int b;
 
 
     k0 = npdcch_k0(Rmax, G, alpha, &T, &alphaT);
-    if (k0 >= 0)
+    if (k0 < 0)
     {
-        count = 0;
-
-        printf(
-            "Rmax( %d ), G( %s ), alpha( %s ), T( %d ), alphaT( %d )\n",
-            Rmax,
-            G2str(G),
-            alpha2str(alpha),
-            T,
-            alphaT
-        );
-        printf("\n");
-        printf("[1;35mk0:[0m\n");
-        printf(" %d ==> +%d\n", alphaT, T);
-        for (k=0; k<10240; k++)
-        {
-            if ((k % T) == alphaT)
-            {
-                if ( verbose )
-                {
-                    if (((count % 10) == 0) && (count != 0))
-                    {
-                        printf("\n");
-                    }
-                    printf(" %5d", k);
-                }
-                count++;
-            }
-        }
-        if ( verbose )
-        {
-            printf("\n");
-        }
-        printf(" Number of subframe_k0 = %d\n", count);
-        printf("\n");
-
-
-        R = Rmax2R(0, Rmax, repNum);
-        if (R > 0)
-        {
-            U = (Rmax / R);
-
-            printf("R( %d ), DCI repetition( %d )\n", R, repNum);
-            printf("\n");
-            printf("[1;33mb:[0m\n");
-            for (u=0; u<U; u++)
-            {
-                b = (u * R);
-                printf("  %d", b);
-            }
-            printf("\n");
-            printf(" Number of subframe_kb = %d\n", U);
-            printf("\n");
-        }
+        printf("ERR: incorrect T = %d\n\n", T);
+        return;
     }
-}
 
-void type1Common(int Rmax, int G, int alpha, int repNum, int verbose)
-{
+    R = Rmax2R(type, Rmax, repNum);
+    if (R <= 0)
+    {
+        printf("ERR: incorrect R = %d\n\n", R);
+        return;
+    }
 
-}
-
-void type2Common(int Rmax, int G, int alpha, int repNum, int verbose)
-{
-    int T;
-    int alphaT;
-    int k0;
-    int k;
-    int count;
-
-    int R;
-    int U;
-    int u;
-    int b;
-
-
-    k0 = npdcch_k0(Rmax, G, alpha, &T, &alphaT);
-    if (k0 >= 0)
+    U = (Rmax / R);
     {
         count = 0;
 
-        printf(
-            "Rmax( %d ), G( %s ), alpha( %s ), T( %d ), alphaT( %d )\n",
-            Rmax,
-            G2str(G),
-            alpha2str(alpha),
-            T,
-            alphaT
-        );
+        printf("             T = %d\n", T);
+        printf("|<------------------------------>|\n");
+        printf("     [1;32m+----------+[0m\n");
+        printf("     [1;32m|  NPDCCH  |[0m\n");
+        printf("     [1;32m+----------+[0m\n");
+        printf("     |<-------->|\n");
+        printf("       Rmax = %d (R = %d)\n", Rmax, R);
+        printf("|---> [1;35mk0[0m\n");
+        printf(" alphaT = %d\n", alphaT);
         printf("\n");
-        printf("[1;35mk0:[0m\n");
-        printf(" + %d\n", (T + alphaT));
+
+        if ( verbose )
+        {
+            printf("NS(L', R)k = \n");
+        }
         for (k=0; k<10240; k++)
         {
             if ((k % T) == alphaT)
             {
-                if ( verbose )
+                for (u=0; u<U; u++)
                 {
-                    if (((count % 10) == 0) && (count != 0))
+                    for (r=0; r<R; r++)
                     {
-                        printf("\n");
+                        if ( verbose )
+                        {
+                            if (((count % 10) == 0) && (count != 0))
+                            {
+                                printf("\n");
+                            }
+                            if (r > 0)
+                            {
+                                printf(" %5d", (k + (u * R) + r));
+                            }
+                            else
+                            {
+                                printf(" [1;32m%5d[0m", (k + (u * R) + r));
+                            }
+                        }
+                        count++;
                     }
-                    printf(" %5d", k);
                 }
-                count++;
             }
         }
         if ( verbose )
         {
-            printf("\n");
+            printf("\n\n");
         }
-        printf(" Number of subframe_k0 = %d\n", count);
+
+        printf("[1;35mkb:[0m\n");
+        for (u=0; u<U; u++)
+        {
+            printf("  %d", (alphaT + (u * R)));
+        }
+        printf("\n");
+        printf(" Number of subframe k0 = %d\n", (count / (U * R)));
         printf("\n");
 
-
-        R = Rmax2R(2, Rmax, repNum);
-        if (R > 0)
+        printf("[1;33mb:[0m\n");
+        for (u=0; u<U; u++)
         {
-            U = (Rmax / R);
-
-            printf("R( %d ), DCI repetition( %d )\n", R, repNum);
-            printf("\n");
-            printf("[1;33mb:[0m\n");
-            for (u=0; u<U; u++)
-            {
-                b = (u * R);
-                printf("  %d", b);
-            }
-            printf("\n");
-            printf(" Number of subframe_kb = %d\n", U);
-            printf("\n");
+            b = (u * R);
+            printf("  %d", b);
         }
+        printf("\n");
+        printf(" Number of b = %d\n", U);
+        printf("\n");
     }
 }
 
@@ -358,8 +118,18 @@ void help(void)
     printf("               1: CSS type 1\n");
     printf("               2: CSS type 2\n");
     printf("  -r Rmax    Rmax (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048).\n");
-    printf("  -g G       G (3, 4, 8, 16, 32, 64, 96, 128).\n");
-    printf("  -a alpha   Alpha offset (0, 1, 2, 3).\n");
+    printf("  -g G       G (  3 -> 1.5,\n");
+    printf("                  4 -> 2,\n");
+    printf("                  8 -> 4,\n");
+    printf("                 16 -> 8,\n");
+    printf("                 32 -> 16,\n");
+    printf("                 64 -> 32,\n");
+    printf("                 96 -> 48,\n");
+    printf("                128 -> 64).\n");
+    printf("  -a alpha   Alpha offset (0 -> 0,\n");
+    printf("                           1 -> 1/8,\n");
+    printf("                           2 -> 1/4,\n");
+    printf("                           3 -> 3/8).\n");
     printf("  -n repNum  DCI subframe repetition number (0, 1, 2, 3).\n");
     printf("  -v         Verbose log.\n");
     printf("  -h         Show the help message.\n");
@@ -413,17 +183,17 @@ int main(int argc, char *argv[])
     if (0 == type)
     {
         printf("[ UE-specific Search Space ]\n\n");
-        ueSpecific(Rmax, G, alpha, repNum, verbose);
+        searchSpace(0, Rmax, G, alpha, repNum, verbose);
     }
     else if (1 == type)
     {
         printf("[ Type-1 Common Search Space ]\n\n");
-        type1Common(Rmax, G, alpha, repNum, verbose);
+
     }
     else if (2 == type)
     {
         printf("[ Type-2 Common Search Space ]\n\n");
-        type2Common(Rmax, G, alpha, repNum, verbose);
+        searchSpace(2, Rmax, G, alpha, repNum, verbose);
     }
     else
     {

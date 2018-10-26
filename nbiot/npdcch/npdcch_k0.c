@@ -59,9 +59,18 @@ void help(void)
     printf("Usage: npdcch_k0 [OPTION]...\n");
     printf("\n");
     printf("  -r Rmax    Rmax (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048).\n");
-    printf("  -g G       G (3, 4, 8, 16, 32, 64, 96, 128).\n");
-    printf("  -a alpha   Alpha offset (0, 1, 2, 3).\n");
-    printf("  -k         Calculate subframe k0.\n");
+    printf("  -g G       G (  3 -> 1.5,\n");
+    printf("                  4 -> 2,\n");
+    printf("                  8 -> 4,\n");
+    printf("                 16 -> 8,\n");
+    printf("                 32 -> 16,\n");
+    printf("                 64 -> 32,\n");
+    printf("                 96 -> 48,\n");
+    printf("                128 -> 64).\n");
+    printf("  -a alpha   Alpha offset (0 -> 0,\n");
+    printf("                           1 -> 1/8,\n");
+    printf("                           2 -> 1/4,\n");
+    printf("                           3 -> 3/8).\n");
     printf("  -h         Show the help message.\n");
     printf("\n");
 }
@@ -71,7 +80,6 @@ void help(void)
 */
 int main(int argc, char *argv[])
 {
-    int kFlag = 0;
     int Rmax = 16;
     int G = 4;
     int alpha = 3;
@@ -79,7 +87,7 @@ int main(int argc, char *argv[])
 
 
     opterr = 0;
-    while ((ch=getopt(argc, argv, "r:g:a:kh")) != -1)
+    while ((ch=getopt(argc, argv, "r:g:a:h")) != -1)
     {
         switch ( ch )
         {
@@ -92,9 +100,6 @@ int main(int argc, char *argv[])
             case 'a':
                 alpha = atoi( optarg );
                 break;
-            case 'k':
-                kFlag = 1;
-                break;
             case 'h':
             default:
                 help();
@@ -102,27 +107,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if ( kFlag )
-    {
-        int T;
-        int alphaT;
-        int k0;
-
-        k0 = npdcch_k0(Rmax, G, alpha, &T, &alphaT);
-        if (k0 < 0)
-        {
-            printf("Invalid (T = %d, alphaT = %d)\n", T, alphaT);
-        }
-        else
-        {
-            printf("k0 = %d (T = %d, alphaT = %d)\n", k0, T, alphaT);
-        }
-        printf("\n");
-    }
-    else
-    {
-        show_all_npdcch_k0();
-    }
+    show_all_npdcch_k0();
 
     return 0;
 }
