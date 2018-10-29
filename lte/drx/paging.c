@@ -17,8 +17,9 @@ int _sfPattern[5][4] = {
     {  0,  4,  5,  9  }   //4
 };
 
-char *_nBStr[8] = {
-    "4T", "2T", "T", "T/2", "T/4", "T/8", "T/16", "T/32"
+char *_nBStr[13] = {
+    "4T", "2T", "T", "T/2", "T/4", "T/8", "T/16", "T/32",
+    "T/64", "T/128", "T/256", "T/512", "T/1024"
 };
 
 
@@ -26,21 +27,21 @@ unsigned long long imsiStrToInt(char *pStr)
 {
     unsigned long long IMSI = 0;
     unsigned long long table[] = {
-        1,
-        10,
-        100,
-        1000,
-        10000,
-        100000,
-        1000000,
-        10000000,
-        100000000,
-        1000000000,
-        10000000000,
-        100000000000,
-        1000000000000,
-        10000000000000,
-        100000000000000
+        1LL,
+        10LL,
+        100LL,
+        1000LL,
+        10000LL,
+        100000LL,
+        1000000LL,
+        10000000LL,
+        100000000LL,
+        1000000000LL,
+        10000000000LL,
+        100000000000LL,
+        1000000000000LL,
+        10000000000000LL,
+        100000000000000LL
     };
     int len;
     int i;
@@ -65,9 +66,9 @@ void show_PF_PO(int UE_ID, int T, int N, int Ns, int i_s)
     int j;
 
 
-    printf("------+--------------\n");
+    printf("------+-------------\n");
     printf("Frame | Subframe(s)\n");
-    printf("------+--------------\n");
+    printf("------+-------------\n");
     for (SFN=0; SFN<1024; SFN++)
     {
         if ((SFN % T) == ((T / N) * (UE_ID % N)))
@@ -93,7 +94,7 @@ void show_PF_PO(int UE_ID, int T, int N, int Ns, int i_s)
             printf("\n");
         }
     }
-    printf("------+--------------\n");
+    printf("------+-------------\n");
     printf("\n");
 }
 
@@ -102,15 +103,21 @@ void help(void)
     printf("Usage: paging [OPTION]...\n");
     printf("\n");
     printf("  -i IMSI  IMSI string (15 characters).\n");
-    printf("  -t T     DRX cycle (32, 64, 128, 256) frames.\n");
-    printf("  -b nB    nB ( 128 -> 4T,\n");
-    printf("                 64 -> 2T,\n");
-    printf("                 32 ->  T,\n");
-    printf("                 16 ->  T/2,\n");
-    printf("                  8 ->  T/4,\n");
-    printf("                  4 ->  T/8,\n");
-    printf("                  2 ->  T/16,\n");
-    printf("                  1 ->  T/32).\n");
+    printf("  -t T     DRX cycle (32, 64, 128, 256, 512, 1024) frames.\n");
+    printf("  -b nB    nB (4096 -> 4T,\n");
+    printf("               2048 -> 2T,\n");
+    printf("               1024 ->  T,\n");
+    printf("                512 ->  T/2,\n");
+    printf("                256 ->  T/4,\n");
+    printf("                128 ->  T/8,\n");
+    printf("                 64 ->  T/16,\n");
+    printf("                 32 ->  T/32,\n");
+    printf("                 16 ->  T/64,\n");
+    printf("                  8 ->  T/128,\n");
+    printf("                  4 ->  T/256,\n");
+    printf("                  2 ->  T/512,\n");
+    printf("                  1 ->  T/1024).\n");
+    printf("  -n       NB-IoT flag.\n");
     printf("\n");
     printf("  -h       Show the help message.\n");
     printf("\n");
@@ -121,10 +128,11 @@ void help(void)
  */
 int main(int argc, char *argv[])
 {
-    unsigned long long IMSI = 1010123456789ll;
+    unsigned long long IMSI = 1010123456789LL;
     int UE_ID = 0;
     int T = 128;
-    int bVal = 32;
+    int bVal = 1024;
+    int nFlag = 0;
     int nB;
     int N;
     int Ns;
@@ -134,7 +142,7 @@ int main(int argc, char *argv[])
 
 
     opterr = 0;
-    while ((ch=getopt(argc, argv, "i:t:b:h")) != -1)
+    while ((ch=getopt(argc, argv, "i:t:b:nh")) != -1)
     {
         switch ( ch )
         {
@@ -147,6 +155,9 @@ int main(int argc, char *argv[])
             case 'b':
                 bVal = atoi( optarg );
                 break;
+            case 'n':
+                nFlag = 1;
+                break;
             case 'h':
             default:
                 help();
@@ -155,41 +166,91 @@ int main(int argc, char *argv[])
     }
 
 
-    if ((T != 32) && (T != 64) && (T != 128) && (T != 256))
+    if ( nFlag )
     {
-        printf("ERR: incorrect T %d\n\n", T);
-        return -1;
+        if ((T !=  128) &&
+            (T !=  256) &&
+            (T !=  512) &&
+            (T != 1024))
+        {
+            printf("ERR: incorrect T %d\n\n", T);
+            return -1;
+        }
+    }
+    else
+    {
+        if ((T !=  32) &&
+            (T !=  64) &&
+            (T != 128) &&
+            (T != 256))
+        {
+            printf("ERR: incorrect T %d\n\n", T);
+            return -1;
+        }
     }
 
-    if ((bVal !=   1) &&
-        (bVal !=   2) &&
-        (bVal !=   4) &&
-        (bVal !=   8) &&
-        (bVal !=  16) &&
-        (bVal !=  32) &&
-        (bVal !=  64) &&
-        (bVal != 128))
+    if ( nFlag )
     {
-        printf("ERR: incorrect nB %d\n\n", bVal);
-        return -1;
+        if ((bVal !=    1) &&
+            (bVal !=    2) &&
+            (bVal !=    4) &&
+            (bVal !=    8) &&
+            (bVal !=   16) &&
+            (bVal !=   32) &&
+            (bVal !=   64) &&
+            (bVal !=  128) &&
+            (bVal !=  256) &&
+            (bVal !=  512) &&
+            (bVal != 1024) &&
+            (bVal != 2048) &&
+            (bVal != 4096))
+        {
+            printf("ERR: incorrect nB %d\n\n", bVal);
+            return -1;
+        }
+    }
+    else
+    {
+        if ((bVal !=   32) &&
+            (bVal !=   64) &&
+            (bVal !=  128) &&
+            (bVal !=  256) &&
+            (bVal !=  512) &&
+            (bVal != 1024) &&
+            (bVal != 2048) &&
+            (bVal != 4096))
+        {
+            printf("ERR: incorrect nB %d\n\n", bVal);
+            return -1;
+        }
     }
 
 
-    UE_ID = (IMSI & 0x3FF);
-    nB = ((T * bVal) / 32);
+    UE_ID = (( nFlag ) ? (IMSI & 0xFFF) : (IMSI & 0x3FF));
+    nB = ((T * bVal) / 1024);
     N = ((T > nB) ? nB : T);
+    if (0 == N)
+    {
+        printf("ERR: incorrect N %d\n\n", N);
+        return -1;
+    }
     Ns = (((nB / T) > 1) ? (nB / T) : 1);
+    if ((Ns != 1) && (Ns != 2) && (Ns != 4))
+    {
+        printf("ERR: incorrect Ns %d\n\n", Ns);
+        return -1;
+    }
     i_s = (FLOOR(UE_ID, N) % Ns);
 
     printf("\n");
     printf("IMSI  = %015llu\n", IMSI);
     printf("UE_ID = %d\n", UE_ID);
     printf("T     = %d\n", T);
-    for (j=8; j>0; j--)
+    for (j=13; j>0; j--)
     {
         if ((bVal >> (j-1)) == 0x1)
         {
-            printf("nB    = %d (%s)\n", nB, _nBStr[8-j]);
+            printf("nB    = %d (%s)\n", nB, _nBStr[13-j]);
             break;
         }
     }
@@ -197,12 +258,6 @@ int main(int argc, char *argv[])
     printf("Ns    = %d\n", Ns);
     printf("i_s   = %d\n", i_s);
     printf("\n");
-
-    if ((Ns != 1) && (Ns != 2) && (Ns != 4))
-    {
-        printf("ERR: incorrect Ns %d\n\n", Ns);
-        return -1;
-    }
 
     show_PF_PO(
         UE_ID,

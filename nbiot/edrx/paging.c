@@ -11,9 +11,10 @@
 
 typedef enum
 {
-    PTW_NULL  = 0,
-    PTW_START = 1,
-    PTW_END   = 2
+    PTW_INIT  = 0,
+    PTW_NEXT  = 1,
+    PTW_START = 2,
+    PTW_END   = 3
 } tPtwState;
 
 
@@ -24,7 +25,7 @@ void show_PTW(int UE_ID_H, int T_eDRX_H, int i_eDRX, int L)
     int PH;  /* Paging Hyperframe */
     int PTW_start;
     int PTW_end;
-    int state = PTW_NULL;
+    int state = PTW_INIT;
     int PH2 = 0;
 
 
@@ -40,22 +41,40 @@ void show_PTW(int UE_ID_H, int T_eDRX_H, int i_eDRX, int L)
             PH = H_SFN;
             for (SFN=0; SFN<1024; SFN++)
             {
-                if (SFN == (256 * i_eDRX))
+                switch ( state )
                 {
-                    PTW_start = SFN;
-                    printf(" [1;36m%4d[0m  | [1;33m%4d[0m |", PH, PTW_start);
-                    if (PTW_NULL == state)
-                    {
-                        PH2 = PH;
-                    }
-                    state = PTW_START;
-                }
-                if ((PTW_START == state) &&
-                    (SFN == ((PTW_start + (L * 256) - 1) % 1024)))
-                {
-                    PTW_end = SFN;
-                    printf(" [1;36m%4d[0m  | [1;33m%4d[0m\n", PH, PTW_end);
-                    state = PTW_END;
+                    case PTW_INIT:
+                    case PTW_NEXT:
+                        if (SFN == (256 * i_eDRX))
+                        {
+                            if (PTW_INIT == state)
+                            {
+                                PH2 = PH;
+                            }
+                            PTW_start = SFN;
+                            printf(
+                                " [1;36m%4d[0m  | [1;33m%4d[0m |",
+                                PH,
+                                PTW_start
+                            );
+                            state = PTW_START;
+                        }
+                        break;
+                    case PTW_START:
+                        if (SFN == ((PTW_start + (L * 256) - 1) % 1024))
+                        {
+                            PTW_end = SFN;
+                            printf(
+                                " [1;36m%4d[0m  | [1;33m%4d[0m\n",
+                                PH,
+                                PTW_end
+                            );
+                            state = PTW_END;
+                        }
+                        break;
+                    case PTW_END:
+                        state = PTW_NEXT;
+                        break;
                 }
             }
         }
@@ -167,11 +186,11 @@ int main(int argc, char *argv[])
 
 
     printf("\n");
-    printf("M_TMSI  = %llu\n", M_TMSI);
-    printf("UE_ID_H = %d\n", UE_ID_H);
-    printf("PTW     = %d\n", L);
-    printf("T_eDRX  = %d\n", T_eDRX_H);
-    printf("i_eDRX  = %d\n", i_eDRX);
+    printf("M_TMSI   = %llu\n", M_TMSI);
+    printf("UE_ID_H  = %d\n", UE_ID_H);
+    printf("PTW      = %d\n", L);
+    printf("T_eDRX,H = %d\n", T_eDRX_H);
+    printf("i_eDRX   = %d\n", i_eDRX);
     printf("\n");
 
     show_PTW(
