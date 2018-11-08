@@ -4,14 +4,6 @@
 #include "utility.h"
 
 
-unsigned char _data[] = {
-};
-
-int _dataLen = sizeof( _data );
-
-int _zero = 0;
-
-
 int main(int argc, char *argv[])
 {
     FILE *pFileIn  = NULL;
@@ -62,10 +54,16 @@ int main(int argc, char *argv[])
             if ( text[0] )
             {
                 pData = hexstr2byte(text, &bytes);
+                if ( pData )
+                {
+                    if (bytes > 0)
+                    {
+                        fwrite(pData, bytes, 1, pFileOut);
+                        sizeOut += bytes;
+                    }
 
-                fwrite(pData, bytes, 1, pFileOut);
-
-                sizeOut += bytes;
+                    free( pData );
+                }
             }
         }
         else
@@ -77,10 +75,16 @@ int main(int argc, char *argv[])
     if ((j > 0) && ( text[j-1] ))
     {
         pData = hexstr2byte(text, &bytes);
+        if ( pData )
+        {
+            if (bytes > 0)
+            {
+                fwrite(pData, bytes, 1, pFileOut);
+                sizeOut += bytes;
+            }
 
-        fwrite(pData, bytes, 1, pFileOut);
-
-        sizeOut += bytes;
+            free( pData );
+        }
     }
 
     fclose( pFileIn  );

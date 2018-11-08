@@ -36,30 +36,33 @@ int main(int argc, char *argv[])
     }
 
     pPattern = hexstr2byte(argv[2], &patternLen);
-    if (( pPattern ) && (patternLen > 0))
+    if ( pPattern )
     {
-        //dump(pPattern, patternLen);
-
-        next  = 0;
-        count = 1;
-        for (i=0; i<totalLen; i++)
+        if (patternLen > 0)
         {
-            fread(&byte, 1, 1, pFileIn);
+            //dump(pPattern, patternLen);
 
-            if (byte == pPattern[next])
+            next  = 0;
+            count = 1;
+            for (i=0; i<totalLen; i++)
             {
-                if (next == 0) offset = i;
+                fread(&byte, 1, 1, pFileIn);
 
-                next++;
-                if (next == patternLen)
+                if (byte == pPattern[next])
                 {
-                    printf("#%d found at 0x%X\n", count, offset);
-                    count++;
+                    if (next == 0) offset = i;
+
+                    next++;
+                    if (next == patternLen)
+                    {
+                        printf("#%d found at 0x%X\n", count, offset);
+                        count++;
+                    }
                 }
-            }
-            else
-            {
-                next = 0;
+                else
+                {
+                    next = 0;
+                }
             }
         }
 

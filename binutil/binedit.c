@@ -43,18 +43,21 @@ int main(int argc, char *argv[])
     }
 
     pValue = hexstr2byte(argv[3], &valueLen);
-    if (( pValue ) && (valueLen > 0))
+    if ( pValue )
     {
-        //dump(pValue, valueLen);
-
-        if (offset > 0)
+        if (valueLen > 0)
         {
-            fseek(pFile, offset, SEEK_SET);
-        }
+            //dump(pValue, valueLen);
 
-        for (i=0; i<valueLen; i++)
-        {
-            fwrite(&(pValue[i]), 1, 1, pFile);
+            if (offset > 0)
+            {
+                fseek(pFile, offset, SEEK_SET);
+            }
+
+            for (i=0; i<valueLen; i++)
+            {
+                fwrite(&(pValue[i]), 1, 1, pFile);
+            }
         }
 
         free( pValue );

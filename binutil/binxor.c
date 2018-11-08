@@ -8,8 +8,8 @@
 int main(int argc, char *argv[])
 {
     unsigned char  byte;
-    unsigned char *pVal1;
-    unsigned char *pVal2;
+    unsigned char *pVal1 = NULL;
+    unsigned char *pVal2 = NULL;
     unsigned int   valLen1;
     unsigned int   valLen2;
     unsigned int   offset1;
@@ -58,12 +58,11 @@ int main(int argc, char *argv[])
                 printf("%02X", byte);
             }
             printf("\n");
-
-            free( pVal2 );
         }
-
-        free( pVal1 );
     }
+
+    if ( pVal1 ) free( pVal1 );
+    if ( pVal2 ) free( pVal2 );
 
     return 0;
 }
