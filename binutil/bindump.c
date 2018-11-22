@@ -80,25 +80,31 @@ int main(int argc, char *argv[])
 
     if (NULL == pInput)
     {
-        printf("ERR: no input file\n");
-        return 0;
+        printf("ERR: no input file\n\n");
+        return -1;
     }
 
     pFile = fopen(pInput, "r");
     if (NULL == pFile)
     {
-        printf("ERR: cannot open file %s\n", pInput);
-        return 0;
+        printf("ERR: cannot open file %s\n\n", pInput);
+        return -1;
     }
 
     size = filesize( pInput );
 
     if (offset > 0)
     {
-        fseek(pFile, offset, SEEK_SET);
+        if ((offset >= size) || (0 != fseek(pFile, offset, SEEK_SET)))
+        {
+            fclose( pFile );
+            printf("ERR: wrong offset %ld\n\n", offset);
+            return -1;
+        }
     }
     for (i=0; i<size; i++)
     {
+        if ( feof( pFile ) ) break;
         if ((length > 0) && (i >= length)) break;
 
         fread(&byte, 1, 1, pFile);

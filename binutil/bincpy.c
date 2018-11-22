@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     unsigned int   start;
     unsigned int   length;
     unsigned int   i;
+    long  sizeIn;
 
 
     if (argc != 5)
@@ -23,11 +24,13 @@ int main(int argc, char *argv[])
     }
 
 
+    sizeIn = filesize( argv[1] );
+
     if ((pFileIn=fopen(argv[1], "r")) == NULL)
     {
         fprintf(
             stdout,
-            "ERR: cannot open %s\n",
+            "ERR: cannot open %s\n\n",
             argv[1]
         );
         return -1;
@@ -37,7 +40,7 @@ int main(int argc, char *argv[])
     {
         fprintf(
             stdout,
-            "ERR: cannot open %s\n",
+            "ERR: cannot open %s\n\n",
             argv[2]
         );
         fclose( pFileIn );
@@ -66,18 +69,29 @@ int main(int argc, char *argv[])
 
     if (start > 0)
     {
-        fseek(pFileIn, start, SEEK_SET);
+        if ((start >= sizeIn) || (0 != fseek(pFileIn, start, SEEK_SET)))
+        {
+            fclose( pFileIn );
+            fclose( pFileOut );
+            fprintf(
+                stdout,
+                "ERR: wrong start %u\n\n",
+                start
+            );
+            return -1;
+        }
     }
     for (i=0; i<length; i++)
     {
-        fread(&buf, 1, 1, pFileIn);
+        if ( feof( pFileIn ) ) break;
+        fread(&buf,  1, 1, pFileIn);
         fwrite(&buf, 1, 1, pFileOut);
     }
 
     fclose( pFileIn );
     fclose( pFileOut );
 
-    printf("Binary copy ... %u bytes\n", length);
+    printf("Binary copy ... %u bytes\n", i);
     return 0;
 }
 

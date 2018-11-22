@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     if ((pFile=fopen(argv[1], "r+")) == NULL)
     {
-        printf("ERR: cannot open %s\n", argv[1]);
+        printf("ERR: cannot open %s\n\n", argv[1]);
         return -1;
     }
 
@@ -51,7 +51,12 @@ int main(int argc, char *argv[])
 
             if (offset > 0)
             {
-                fseek(pFile, offset, SEEK_SET);
+                if ((offset >= size1) || (0 != fseek(pFile, offset, SEEK_SET)))
+                {
+                    fclose( pFile );
+                    printf("ERR: wrong offset %u\n\n", offset);
+                    return -1;
+                }
             }
 
             for (i=0; i<valueLen; i++)

@@ -16,7 +16,14 @@ static void _pdcchCandidates(int Yk, int mP, int N_CCE_k, int L)
     for (i = 0; i < L; i++)
     {
         cceIndex = L * ((Yk + mP) % DIV_FLOOR(N_CCE_k, L)) + i;
-        printf(" %2d", cceIndex);
+        if (0 == i)
+        {
+            printf(" [1;31m%2d[0m", cceIndex);
+        }
+        else
+        {
+            printf(" %2d", cceIndex);
+        }
     }
 
     printf(" }\n");
@@ -54,6 +61,7 @@ int main(int argc, char *argv[])
     int N_CCE_k;
     int N_REG;
     int L;
+    int M_L;
     int ch;
     int i;
 
@@ -106,9 +114,10 @@ int main(int argc, char *argv[])
         for (i = 0; i < 2; i++)
         {
             L = L_common[i];
-            printf("L = %d\n", L);
+            M_L = M_L_common[i];
+            printf("L = [1;33m%d[0m (# %d)\n", L, M_L);
 
-            for (m = 0; m < M_L_common[i]; m++)
+            for (m = 0; m < M_L; m++)
             {
                 mP = m;
 
@@ -141,9 +150,10 @@ int main(int argc, char *argv[])
         for (i = 0; i < 4; i++)
         {
             L = L_ue_specific[i];
-            printf("L = %d\n", L);
+            M_L = M_L_ue_specific[i];
+            printf("L = [1;33m%d[0m (# %d)\n", L, M_L);
 
-            for (m = 0; m < M_L_ue_specific[i]; m++)
+            for (m = 0; m < M_L; m++)
             {
                 mP = m;
 
