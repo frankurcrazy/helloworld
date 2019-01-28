@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<LIBXML2>
+    <!-- libxml2 APIs -->
+    <FUNCTION name="xmlReadFile" include="parser.h">
+        <ARGUMENT name="filename" type="char*" last="0">
+            a file or URL
+        </ARGUMENT>
+        <ARGUMENT name="encoding" type="char*" last="0">
+            the document encoding, or NULL
+        </ARGUMENT>
+        <ARGUMENT name="options" type="int" last="1">
+            a combination of xmlParseOption
+        </ARGUMENT>
+        <RETURN type="xmlDoc*">
+            the resulting document tree
+        </RETURN>
+        <DESCRIPT>
+            Parse an XML file from the filesystem or network.
+        </DESCRIPT>
+    </FUNCTION>
+    <FUNCTION name="xmlDocGetRootElement" include="tree.h">
+        <ARGUMENT name="doc" type="xmlDoc*" last="1">
+            the document
+        </ARGUMENT>
+        <RETURN type="xmlNode*">
+            the node pointer for the root or NULL
+        </RETURN>
+        <DESCRIPT>
+            Get the root element of the document.
+        </DESCRIPT>
+    </FUNCTION>
+</LIBXML2>
