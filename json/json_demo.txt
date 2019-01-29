@@ -1,0 +1,13 @@
+{
+    "BOOLEAN" : true,
+    "STRING"  : "Hello",
+    "INTEGER" : 100,
+    "ARRAY"   : [ "alpha", "bravo", "charlie" ],
+    "OBJECT"  :
+    {
+        "MEMBER_BOOLEAN" : false,
+        "MEMBER_STRING"  : "Goodbye",
+        "MEMBER_INTEGER" : 200,
+        "MEMBER_ARRAY"   : [ 1, 6, 8 ]
+    }
+}
