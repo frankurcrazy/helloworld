@@ -281,7 +281,7 @@ int ParseXML(xmlDoc *pXmlDoc)
     *  <LIBXML2>
     *    |-- <FUNCTION>
     *    |     |-- <ARGUMENT>
-    *    |     `-- <RETURN>
+    *    |     |-- <RETURN>
     *    |     `-- <DESCRIPT>
     *    |-- <FUNCTION>
     *    `-- ...
