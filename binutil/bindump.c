@@ -66,7 +66,15 @@ int main(int argc, char *argv[])
                 i++;
                 if (i < argc)
                 {
-                    length = atoi( argv[i] );
+                    if ((strlen(argv[i]) > 2) &&
+                        (argv[i][0] == '0') && (argv[i][1] == 'x'))
+                    {
+                        sscanf(argv[i], "0x%lx", &length);
+                    }
+                    else
+                    {
+                        length = atoi( argv[i] );
+                    }
                     i++;
                 }
             }
@@ -95,6 +103,20 @@ int main(int argc, char *argv[])
 
     if (offset > 0)
     {
+        if ((offset >= size) || (0 != fseek(pFile, offset, SEEK_SET)))
+        {
+            fclose( pFile );
+            printf("ERR: wrong offset %ld\n\n", offset);
+            return -1;
+        }
+    }
+    else if (offset < 0)
+    {
+        if (length == 0)
+        {
+            length = ((size < 64) ? size : 64);
+        }
+        offset = (size - length);
         if ((offset >= size) || (0 != fseek(pFile, offset, SEEK_SET)))
         {
             fclose( pFile );

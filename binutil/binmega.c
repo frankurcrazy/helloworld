@@ -32,7 +32,16 @@ int main(int argc, char *argv[])
 
    if (argc >= 4)
    {
-       byte = (atoi( argv[3] ) & 0xFF);
+       if ((strlen(argv[3]) > 2) &&
+           (argv[3][0] == '0') && (argv[3][1] == 'x'))
+       {
+           sscanf(argv[3], "0x%x", &pattern);
+           byte = (pattern & 0xFF);
+       }
+       else
+       {
+           byte = (atoi( argv[3] ) & 0xFF);
+       }
        pattern = 1;
    }
 

@@ -3,7 +3,7 @@ CFLAGS = -Wall
 LDFLAGS = -Wall
 
 
-APPS = binxor binfind bindiff bindump binedit bingen bincpy bincomb binmega
+APPS = binxor binfind bindiff bindump binedit bingen bincpy bincomb binmega binendian
 
 
 all: $(APPS)
@@ -34,6 +34,9 @@ bincomb: bincomb.o utility.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
 binmega: binmega.o utility.o
+	$(CC) $(LDFLAGS) $^ -o $@
+
+binendian: binendian.o utility.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
 
