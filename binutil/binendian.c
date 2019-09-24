@@ -176,11 +176,11 @@ void help(void)
 
 int main(int argc, char *argv[])
 {
-    FILE *pFileIn;
-    FILE *pFileOut;
-    long  sizeIn;
-    long  sizeOut;
-    char  order[16];
+    char  order[16] = {0};
+    FILE *pFileIn = NULL;
+    FILE *pFileOut = NULL;
+    long  sizeIn = 0;
+    long  sizeOut = 0;
 
 
     if (argc != 4)
@@ -274,6 +274,8 @@ int main(int argc, char *argv[])
     else
     {
         help();
+        fclose( pFileIn );
+        fclose( pFileOut );
         return 0;
     }
 

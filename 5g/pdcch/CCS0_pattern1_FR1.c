@@ -47,23 +47,23 @@ int Table_13_2[16][4] = {
 };
 
 
-int Table_13_12[16][5] = {
-    {  0, 1, 2, 0,  0 },
-    {  0, 2, 1, 0, -1 },
-    {  5, 1, 2, 0,  0 },
-    {  5, 2, 1, 0, -1 },
-    { 10, 1, 2, 0,  0 },
-    { 10, 2, 1, 0, -1 },
-    {  0, 2, 1, 0, -1 },
-    {  5, 2, 1, 0, -1 },
-    { 10, 2, 1, 0, -1 },
-    { 15, 1, 2, 0,  0 },
-    { 15, 2, 1, 0, -1 },
-    { 15, 2, 1, 0, -1 },
-    {  0, 1, 4, 0,  0 },
-    { 10, 1, 4, 0,  0 },
-    {  0, 0, 0, 0,  0 },
-    {  0, 0, 0, 0,  0 }
+int Table_13_11[16][5] = {
+    {  0, 2, 2, 0,  0 },
+    {  0, 4, 1, 0, -1 },
+    {  4, 2, 2, 0,  0 },
+    {  4, 4, 1, 0, -1 },
+    { 10, 2, 2, 0,  0 },
+    { 10, 4, 1, 0, -1 },
+    { 14, 2, 2, 0,  0 },
+    { 14, 4, 1, 0, -1 },
+    {  0, 2, 4, 0,  0 },
+    { 10, 2, 4, 0,  0 },
+    {  0, 2, 2, 1,  1 },
+    {  0, 2, 2, 2,  2 },
+    {  4, 2, 2, 1,  1 },
+    {  4, 2, 2, 2,  2 },
+    { 10, 2, 2, 1,  1 },
+    { 10, 2, 2, 2,  2 }
 };
 
 
@@ -73,7 +73,7 @@ int is_case_A_symbol(int slot, int symb, int ssbIndex)
     int index = ((slot * 14) + symb);
     int retval = 0;
 
-    if ((0 == slot) || (1 == slot) || (2 == slot) || (3 == slot))
+    if ((0 == slot) || (1 == slot))
     {
         if ((ssbIndex >> 1) == slot)
         {
@@ -94,7 +94,7 @@ int is_case_A_symbol(int slot, int symb, int ssbIndex)
 int is_ccs0_symbol(
     int slot,
     int symb,
-    int scs,
+    int pdcchSCS,
     int coresetId,
     int cssId,
     int ssbIndex,
@@ -110,12 +110,12 @@ int is_ccs0_symbol(
     int retval = 0;
 
 
-    if (15 == scs)
+    if (15 == pdcchSCS)
     {
         pattern = Table_13_1[coresetId][0];
         N_CORESET_symb = Table_13_1[coresetId][2];
     }
-    else if (30 == scs)
+    else if (30 == pdcchSCS)
     {
         pattern = Table_13_2[coresetId][0];
         N_CORESET_symb = Table_13_2[coresetId][2];
@@ -127,15 +127,15 @@ int is_ccs0_symbol(
         return 0;
     }
 
-    O = Table_13_12[cssId][0];
-    M = Table_13_12[cssId][2];
+    O = Table_13_11[cssId][0];
+    M = Table_13_11[cssId][2];
     if (0 == (ssbIndex % 2))
     {
-        symb1st = Table_13_12[cssId][3];
+        symb1st = Table_13_11[cssId][3];
     }
     else
     {
-        symb1st = Table_13_12[cssId][4];
+        symb1st = Table_13_11[cssId][4];
         if (symb1st < 0)
         {
             symb1st = N_CORESET_symb;
@@ -154,13 +154,13 @@ int is_ccs0_symbol(
 
 void help(void)
 {
-    printf("Usage: CCS0_pattern1_FR2 [OPTION]...\n");
+    printf("Usage: CCS0_pattern1_FR1 [OPTION]...\n");
     printf("\n");
-    printf("  -c   CORESET with ID #0 (0 ~ 15).\n");
-    printf("  -d   Common search space with ID #0 (0 ~ 15).\n");
-    printf("  -s   PDCCH subcarrier spacing (15, 30).\n");
-    printf("  -i   SS/PBCH block index (0 ~ 7).\n");
-    printf("  -h   Show the help message.\n");
+    printf("  -c coresetId   CORESET with ID #0 (0 ~ 15).\n");
+    printf("  -d cssId       Common search space with ID #0 (0 ~ 15).\n");
+    printf("  -s pdcchSCS    PDCCH subcarrier spacing (15, 30 KHz).\n");
+    printf("  -i ssbIndex    SS/PBCH block index (0 ~ 3).\n");
+    printf("  -h             Show the help message.\n");
     printf("\n");
 }
 
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 {
     int coresetId = 0;
     int cssId = 0;
-    int scs = 15;
+    int pdcchSCS = 15;
     int ssbIndex = 0;
 
     int slot;
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
                 cssId = atoi( optarg );
                 break;
             case 's':
-                scs = atoi( optarg );
+                pdcchSCS = atoi( optarg );
                 break;
             case 'i':
                 ssbIndex = atoi( optarg );
@@ -205,38 +205,38 @@ int main(int argc, char *argv[])
 
     if ((coresetId < 0) || (coresetId > 15))
     {
-        printf("ERR: wrong coresetId %d\n", coresetId);
+        printf("ERR: wrong coresetId %d\n\n", coresetId);
         return 0;
     }
 
     if ((cssId < 0) || (cssId > 15))
     {
-        printf("ERR: wrong cssId %d\n", cssId);
+        printf("ERR: wrong cssId %d\n\n", cssId);
         return 0;
     }
 
-    if (scs == 15)
+    if (pdcchSCS == 15)
     {
         u = 0;
     }
-    else if (scs == 30)
+    else if (pdcchSCS == 30)
     {
         u = 1;
     }
     else
     {
-        printf("ERR: wrong SCS %d\n", scs);
+        printf("ERR: wrong SCS %d\n\n", pdcchSCS);
         return 0;
     }
 
-    if ((ssbIndex < 0) || (ssbIndex > 7))
+    if ((ssbIndex < 0) || (ssbIndex > 3))
     {
-        printf("ERR: wrong ssbIndex %d\n", ssbIndex);
+        printf("ERR: wrong ssbIndex %d\n\n", ssbIndex);
         return 0;
     }
 
 
-    printf("SCS: SSB 15KHz, PDCCH %dKHz\n", scs);
+    printf("SCS: SSB 15KHz, PDCCH %dKHz\n", pdcchSCS);
     for (slot=0; slot<N_frame_slot[u]; slot++)
     {
         printf("+\n");
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
         {
             if ( is_case_A_symbol(slot, symb, ssbIndex) )
             {
-                printf(" [1;31m%2d[0m", symb);
+                printf(" [1;32m%2d[0m", symb);
             }
             else
             {
@@ -258,9 +258,9 @@ int main(int argc, char *argv[])
         printf("         ");
         for (symb=0; symb<14; symb++)
         {
-            if ( is_ccs0_symbol(slot, symb, scs, coresetId, cssId, ssbIndex, u) )
+            if ( is_ccs0_symbol(slot, symb, pdcchSCS, coresetId, cssId, ssbIndex, u) )
             {
-                printf(" [1;36m%2d[0m", symb);
+                printf(" [1;31m%2d[0m", symb);
             }
             else
             {

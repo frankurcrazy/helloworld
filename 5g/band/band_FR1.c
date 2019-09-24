@@ -1031,7 +1031,7 @@ void help(void)
     printf("Usage: band_FR1 [OPTION]...\n");
     printf("\n");
     printf("  -b   NR operating band.\n");
-    printf("       (1, 2, 3, 5, 7, 8, 12, 20, 25, 28, 34, 38, 39, 40, 41");
+    printf("       (1, 2, 3, 5, 7, 8, 12, 20, 25, 28, 34, 38, 39, 40, 41\n");
     printf("        50, 51, 65, 66, 70, 71, 74, 77, 78, 79)\n");
     printf("  -w   Bandwidth in MHz.\n");
     printf("       (5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100)\n");

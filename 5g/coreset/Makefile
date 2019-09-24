@@ -1,18 +1,13 @@
 CC = gcc
 CFLAGS = -Wall
 
-all: type0-PDCCH CCS0_pattern1_FR1 CCS0_pattern1_FR2
+all: CCE_REG_mapping CCE_index
 
-type0-PDCCH: type0-PDCCH.c
+CCE_REG_mapping: CCE_REG_mapping.c
 	$(CC) $(CFLAGS) $< -o $@
 
-CCS0_pattern1_FR1: CCS0_pattern1_FR1.c
+CCE_index: CCE_index.c
 	$(CC) $(CFLAGS) $< -o $@
-
-CCS0_pattern1_FR2: CCS0_pattern1_FR2.c
-	$(CC) $(CFLAGS) $< -o $@
-
 
 clean:
-	rm -f type0-PDCCH
-	rm -f CCS0_pattern1_FR1 CCS0_pattern1_FR2
+	rm -f CCE_REG_mapping CCE_index

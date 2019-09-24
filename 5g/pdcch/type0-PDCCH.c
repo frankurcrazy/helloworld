@@ -1169,16 +1169,16 @@ void help(void)
 {
     printf("Usage: type0-PDCCH [OPTION]...\n");
     printf("\n");
-    printf("  -c   CORESET with ID #0 (0 ~ 15).\n");
-    printf("  -d   Common search space with ID #0 (0 ~ 15).\n");
-    printf("  -s   SSB subcarrier spacing (KHz).\n");
-    printf("  -p   PDCCH subcarrier spacing (KHz).\n");
-    printf("  -w   Minimum channel bandwidth (MHz).\n");
-    printf("  -i   SS/PBCH block index (0 ~ 63).\n");
-    printf("  -f   SFN_SSB at index i.\n");
-    printf("  -n   n_SSB at index i.\n");
-    printf("  -k   K_SSB value.\n");
-    printf("  -h   Show the help message.\n");
+    printf("  -c coresetId   CORESET with ID #0 (0 ~ 15).\n");
+    printf("  -d cssId       Common search space with ID #0 (0 ~ 15).\n");
+    printf("  -s ssbSCS      SSB subcarrier spacing (15, 30, 120, 240 KHz).\n");
+    printf("  -p pdcchSCS    PDCCH subcarrier spacing (15, 30, 60, 120 KHz).\n");
+    printf("  -w miniBW      Minimum channel bandwidth (5, 10, 40 MHz).\n");
+    printf("  -i ssbIndex    SSB index (0 ~ 63).\n");
+    printf("  -f SFN_SSB_i   SSB system frame number at index i. (0 ~ 1023)\n");
+    printf("  -n n_SSB_i     SSB slot number at index i. (0 ~ 159)\n");
+    printf("  -k kSSB        K_SSB value.\n");
+    printf("  -h             Show the help message.\n");
     printf("\n");
 }
 
@@ -1212,9 +1212,19 @@ int main(int argc, char *argv[])
         {
             case 'c':
                 coresetId = atoi( optarg );
+                if ((coresetId < 0) || (coresetId > 15))
+                {
+                    printf("ERR: wrong CORESET ID %d\n\n", coresetId);
+                    return -1;
+                }
                 break;
             case 'd':
                 cssId = atoi( optarg );
+                if ((cssId < 0) || (cssId > 15))
+                {
+                    printf("ERR: wrong CSS ID %d\n\n", cssId);
+                    return -1;
+                }
                 break;
             case 's':
                 ssbSCS = atoi( optarg );
@@ -1224,15 +1234,35 @@ int main(int argc, char *argv[])
                 break;
             case 'w':
                 miniBW = atoi( optarg );
+                if ((miniBW != 5) && (miniBW != 10) && (miniBW != 40))
+                {
+                    printf("ERR: wrong minimum bandwidth %d MHz\n\n", miniBW);
+                    return -1;
+                }
                 break;
             case 'i':
                 ssbIndex = atoi( optarg );
+                if ((ssbIndex < 0) || (ssbIndex > 63))
+                {
+                    printf("ERR: wrong SSB index %d\n\n", ssbIndex);
+                    return -1;
+                }
                 break;
             case 'f':
                 SFN_SSB_i = atoi( optarg );
+                if ((SFN_SSB_i < 0) || (SFN_SSB_i > 1023))
+                {
+                    printf("ERR: wrong system frame index %d\n\n", SFN_SSB_i);
+                    return -1;
+                }
                 break;
             case 'n':
                 n_SSB_i = atoi( optarg );
+                if ((n_SSB_i < 0) || (n_SSB_i > 159))
+                {
+                    printf("ERR: wrong slot index %d\n\n", n_SSB_i);
+                    return -1;
+                }
                 break;
             case 'k':
                 kSSB = atoi( optarg );
@@ -1245,29 +1275,25 @@ int main(int argc, char *argv[])
     }
 
 
-    if ((ssbSCS == 15) && (pdcchSCS == 15) &&
-        ((miniBW == 5) || (miniBW == 10)))
+    if ((ssbSCS == 15) && (pdcchSCS == 15) && ((miniBW == 5) || (miniBW == 10)))
     {
         pResource = Table_13_1( coresetId );
         FR = 1;
         u = 0;
     }
-    else if ((ssbSCS == 15) && (pdcchSCS == 30) &&
-             ((miniBW == 5) || (miniBW == 10)))
+    else if ((ssbSCS == 15) && (pdcchSCS == 30) && ((miniBW == 5) || (miniBW == 10)))
     {
         pResource = Table_13_2( coresetId );
         FR = 1;
         u = 1;
     }
-    else if ((ssbSCS == 30) && (pdcchSCS == 15) &&
-             ((miniBW == 5) || (miniBW == 10)))
+    else if ((ssbSCS == 30) && (pdcchSCS == 15) && ((miniBW == 5) || (miniBW == 10)))
     {
         pResource = Table_13_3( coresetId );
         FR = 1;
         u = 0;
     }
-    else if ((ssbSCS == 30) && (pdcchSCS == 30) &&
-             ((miniBW == 5) || (miniBW == 10)))
+    else if ((ssbSCS == 30) && (pdcchSCS == 30) && ((miniBW == 5) || (miniBW == 10)))
     {
         pResource = Table_13_4( coresetId );
         FR = 1;
@@ -1308,6 +1334,11 @@ int main(int argc, char *argv[])
         pResource = Table_13_10(coresetId, kSSB);
         FR = 2;
         u = 3;
+    }
+    else
+    {
+        printf("ERR: wrong SCS {%d, %d} KHz\n\n", ssbSCS, pdcchSCS);
+        return -1;
     }
 
     if ( pResource )
@@ -1366,7 +1397,6 @@ int main(int argc, char *argv[])
                     if (i<(pResource->symbNum-1)) printf(", ");
                 }
                 printf(" ]\n");
-
                 printf("\n");
             }
         }
@@ -1380,12 +1410,42 @@ int main(int argc, char *argv[])
             {
                 pPattern = Table_13_14(cssId, ssbIndex, SFN_SSB_i, n_SSB_i);
             }
+
+            if ( pPattern )
+            {
+                printf("frame[ %d ]\n", pPattern->SFNc);
+                printf("  + slot[ %d ]\n", pPattern->nc);
+                printf("      + symbol[ ");
+                j = pPattern->symb1st;
+                for (i=0; i<pResource->symbNum; i++)
+                {
+                    printf("%d", j++);
+                    if (i<(pResource->symbNum-1)) printf(", ");
+                }
+                printf(" ]\n");
+                printf("\n");
+            }
         }
         else if (3 == pResource->pattern)
         {
             if ((ssbSCS == 120) && (pdcchSCS == 120))
             {
                 pPattern = Table_13_15(cssId, ssbIndex, SFN_SSB_i, n_SSB_i);
+            }
+
+            if ( pPattern )
+            {
+                printf("frame[ %d ]\n", pPattern->SFNc);
+                printf("  + slot[ %d ]\n", pPattern->nc);
+                printf("      + symbol[ ");
+                j = pPattern->symb1st;
+                for (i=0; i<pResource->symbNum; i++)
+                {
+                    printf("%d", j++);
+                    if (i<(pResource->symbNum-1)) printf(", ");
+                }
+                printf(" ]\n");
+                printf("\n");
             }
         }
     }
