@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
 
-all: preamble_format ssb_associate
+all: preamble_format ssb_associate cyclic_shift
 
 preamble_format: preamble_format.c
 	$(CC) $(CFLAGS) $< -o $@
@@ -9,8 +9,8 @@ preamble_format: preamble_format.c
 ssb_associate: ssb_associate.c
 	$(CC) $(CFLAGS) -lm $< -o $@
 
-#sync_raster: sync_raster.c
-#	$(CC) $(CFLAGS) $< -o $@
+cyclic_shift: cyclic_shift.c
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f preamble_format ssb_associate
+	rm -f preamble_format ssb_associate cyclic_shift

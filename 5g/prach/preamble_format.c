@@ -126,11 +126,11 @@ void help(void)
 {
     printf("Usage: preamble_format [OPTION]...\n");
     printf("\n");
-    printf("  -f   Preamble format (0, 1, 2, 3 for L839).\n");
-    printf("                       (A1, A2, A3, B1, B2, B3, B4, C0, C2 for L139).\n");
-    printf("  -a   PRACH subcarrier spacing (15, 30, 60, 120).\n");
-    printf("  -s   PUSCH subcarrier spacing (15, 30, 60, 120).\n");
-    printf("  -h   Show the help message.\n");
+    printf("  -f value   Preamble format (0, 1, 2, 3 for L839).\n");
+    printf("                             (A1, A2, A3, B1, B2, B3, B4, C0, C2 for L139).\n");
+    printf("  -a value   PRACH subcarrier spacing (15, 30, 60, 120).\n");
+    printf("  -s value   PUSCH subcarrier spacing (15, 30, 60, 120).\n");
+    printf("  -h         Show the help message.\n");
     printf("\n");
 }
 

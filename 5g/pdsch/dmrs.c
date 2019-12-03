@@ -9,6 +9,15 @@
 #define DEBUG_RE  (0)
 
 
+typedef enum _tPdschRs
+{
+    NONE  = 0,
+    PDSCH = 1,
+    DMRS  = 2,
+    PTRS  = 3
+} tPdschRs;
+
+
 typedef struct _tDmrsPos
 {
     int lb[4];
@@ -341,7 +350,7 @@ void Table_7_4_1_1_2_4(
     #endif
     for (i=0; i<pPos->lbNum; i++)
     {
-        for (j=0; j<2; j++)
+        for (j=0; j<((0 == i) ? 2 : 1); j++)
         {
             if (0 == type)
             {
@@ -367,26 +376,7 @@ void Table_7_4_1_1_2_4(
     #endif
 }
 
-void showPDSCH(int S, int L)
-{
-    int l;
-
-    printf("  ");
-    for (l=0; l<14; l++)
-    {
-        if ((l >= S) && (l <= (S + L - 1)))
-        {
-            printf(" [1;32m==[0m");
-        }
-        else
-        {
-            printf("   ");
-        }
-    }
-    printf("\n");
-}
-
-void showDMRS(int RE[12][14])
+void showPDSCH(int RE[12][14], int S, int L)
 {
     int k;
     int l;
@@ -397,13 +387,20 @@ void showDMRS(int RE[12][14])
         printf("%2d", k);
         for (l=0; l<14; l++)
         {
-            if (RE[j][l] >= 0)
+            if ((l >= S) && (l <= (S + L - 1)))
             {
-                #if 1
-                printf(" [1;33m**[0m");
-                #else
-                printf(" [1;33m%2d[0m", l);
-                #endif
+                if (RE[j][l] >= 0)
+                {
+                    #if 1
+                    printf(" [1;33mDM[0m");
+                    #else
+                    printf(" [1;33m%2d[0m", l);
+                    #endif
+                }
+                else
+                {
+                    printf("  *");
+                }
             }
             else
             {
@@ -412,6 +409,41 @@ void showDMRS(int RE[12][14])
         }
         printf("\n");
         j++;
+    }
+}
+
+void exportPDSCH(int RE[12][14], int S, int L)
+{
+    FILE *pFile;
+    int l;
+    int j;
+
+    pFile = fopen("PDSCH_RS.txt", "w");
+    if ( pFile )
+    {
+        for (j=0; j<12; j++)
+        {
+            for (l=0; l<14; l++)
+            {
+                if ((l >= S) && (l <= (S + L - 1)))
+                {
+                    if (RE[j][l] >= 0)
+                    {
+                        fprintf(pFile, "%d", DMRS);
+                    }
+                    else
+                    {
+                        fprintf(pFile, "%d", PDSCH);
+                    }
+                }
+                else
+                {
+                    fprintf(pFile, "%d", NONE);
+                }
+            }
+            fprintf(pFile, "\n");
+        }
+        fclose( pFile );
     }
 }
 
@@ -653,12 +685,13 @@ int main(int argc, char *argv[])
     return 0;
     #endif
 
-    showPDSCH(S, L);
-    showDMRS( RE );
-    showPDSCH(S, L);
+    showPDSCH(RE, S, L);
 
     printf("    0  1  2  3  4  5  6  7  8  9 10 11 12 13\n");
     printf("\n");
+
+
+    exportPDSCH(RE, S, L);
 
     return 0;
 }

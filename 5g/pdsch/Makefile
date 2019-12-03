@@ -1,13 +1,19 @@
 CC = gcc
 CFLAGS = -Wall
 
-all: dmrs sliv
-
-dmrs: dmrs.c
-	$(CC) $(CFLAGS) $< -o $@
+all: sliv dmrs ptrs tbs
 
 sliv: sliv.c
 	$(CC) $(CFLAGS) $< -o $@
 
+dmrs: dmrs.c
+	$(CC) $(CFLAGS) $< -o $@
+
+ptrs: ptrs.c
+	$(CC) $(CFLAGS) $< -o $@
+
+tbs: tbs.c
+	$(CC) $(CFLAGS) -lm $< -o $@
+
 clean:
-	rm -f dmrs sliv 
+	rm -f sliv dmrs ptrs tbs

@@ -4,11 +4,19 @@
 #include <unistd.h>
 #include <math.h>
 
-#define DIV_CEIL(X, Y)   (((X) + ((Y) - 1)) / (Y))
-#define DIV_FLOOR(X, Y)  ((X) / (Y))
+#define DIV_CEIL(X, Y)  (((X) + ((Y) - 1)) / (Y))
+#define DIV_FLOOR(X, Y) ((X) / (Y))
 
 
+/* Random access configurations:
+ *   g_raConfig[][][0] = PRACH cnofiguration index
+ *   g_raConfig[][][1] = Starting symbol
+ *   g_raConfig[][][2] = Number of PRACH slots within a subframe
+ *   g_raConfig[][][3] = Number of time domain PRACH occasions within a PRACH slot
+ *   g_raConfig[][][4] = PRACH duration
+ */
 int g_raConfig[3][256][5] = {
+    /* 0: FR1 paired */
     {
         {   0,  0,  -1,  -1,  0  },
         {   1,  0,  -1,  -1,  0  },
@@ -267,6 +275,7 @@ int g_raConfig[3][256][5] = {
         { 254,  0,   2,   2,  6  },
         { 255,  0,   2,   2,  6  }
     },
+    /* 1: FR1 unpaired */
     {
         {   0,  0,  -1,  -1,  0  },
         {   1,  0,  -1,  -1,  0  },
@@ -525,6 +534,7 @@ int g_raConfig[3][256][5] = {
         { 254,  0,   1,   2,  6  },
         { 255,  2,   1,   2,  6  }
     },
+    /* 2: FR2 */
     {
         {   0,  0,   2,   6,  2  },
         {   1,  0,   1,   6,  2  },
@@ -805,15 +815,15 @@ void help(void)
 {
     printf("Usage: ssb_associate [OPTION]...\n");
     printf("\n");
-    printf("  -f   Frequency range (0: FR1 paired, 1: FR1 unpaired, 2: FR2).\n");
-    printf("  -c   PRACH configuration index (0 ~ 255).\n");
-    printf("  -m   msg1-FDM (1, 2, 4, 8).\n");
-    printf("  -s   msg1-FrequencyStart (0 ~ 274).\n");
-    printf("  -n   SSB per RACH occasion (N: 1/8, 1/4, 1/2, 1, 2, 4, 8, 16).\n");
-    printf("  -r   Contention based preambles per SSB (R: 1 ~ 64).\n");
-    printf("  -t   Total number of RA preambles (1 ~ 64).\n");
-    printf("  -l   Number of SSB in a half frame (4, 8, 64).\n");
-    printf("  -h   Show the help message.\n");
+    printf("  -f value   Frequency range (0: FR1 paired, 1: FR1 unpaired, 2: FR2).\n");
+    printf("  -c value   PRACH configuration index (0 ~ 255).\n");
+    printf("  -m value   msg1-FDM (1, 2, 4, 8).\n");
+    printf("  -s value   msg1-FrequencyStart (0 ~ 274).\n");
+    printf("  -n value   SSB per RACH occasion (N: 1/8, 1/4, 1/2, 1, 2, 4, 8, 16).\n");
+    printf("  -r value   Contention based preambles per SSB (R: 1 ~ 64).\n");
+    printf("  -t value   Total number of RA preambles (1 ~ 64).\n");
+    printf("  -l value   Number of SSB in a half frame (4, 8, 64).\n");
+    printf("  -h         Show the help message.\n");
     printf("\n");
 }
 
