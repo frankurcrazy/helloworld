@@ -23,16 +23,18 @@ typedef enum
 
 /*
 * :llaaaatt[dd...]cc
-* ||||||||||||||||`` CHECKSUM (Zero checksum)
-* |||||||||```````- DATA
-* |||||||``- TYPE
-* |||||||     `- 00 : data record
-* |||||||     `- 01 : end of file record
-* |||||||     `- 02 : expended segment address record
-* |||||||     `- 04 : expended linear address record
+* ||||||||||||||||||
+* ||||||||||||||||``- CHECKSUM (two's complement)
+* |||||||||```````- DATA (2 * LENGTH of HEX digits)
+* |||||||``- TYPE 00: data record
+* |||||||         01: end of file record
+* |||||||         02: expended segment address record
+* |||||||         03: start segment address record
+* |||||||         04: expended linear address record
+* |||||||         05: start linear address record
 * |||````- ADDRESS
 * |``- LENGTH
-* `-START - colon
+* `-START (colon)
 */
 static uint8 _binBuff[65536];
 
@@ -261,15 +263,17 @@ void mcs2bin(char *pFileIn, char *pFileOut)
     char   *pText;
 
     uint8  *pBinBuff = &(_binBuff[0]);
-    uint32  lineCnt = 0;
-    uint32  byteCnt = 0;
-    uint32  bufCnt  = 0;
-    uint32  offset;
-    uint16  addrExt;
-    uint16  addr;
+    uint8   dummyByte = 0xFF;
+    uint32  lineCount = 0;
+    uint32  byteCount = 0;
+    uint32  binLen  = 0;
+    uint32  addrInit = 0;
+    uint32  addrNext = 0;
+    uint16  val16;
 
     uint8   buf[300];
     int     len;
+    int     i;
 
 
     if ((pInput=fopen(pFileIn, "r")) == NULL)
@@ -286,13 +290,11 @@ void mcs2bin(char *pFileIn, char *pFileOut)
         goto _EXIT;
     }
 
-    memset(pBinBuff, 0x00, sizeof(_binBuff));
-
     while ( _readLine(pInput, text, TEXT_SIZE) )
     {
         //printf("%s\n", text);
 
-        lineCnt++;
+        lineCount++;
 
         /* Start code */
         if (':' == text[0])
@@ -309,9 +311,10 @@ void mcs2bin(char *pFileIn, char *pFileOut)
             _dump(buf, len);
             #endif
 
+            /* Check the record length */
             if ((len < 5) || ((len - 5) < buf[0]))
             {
-                printf("ERR: invalid record at line(%d):\n", lineCnt);
+                printf("ERR: invalid record at line(%d):\n", lineCount);
                 printf("'%s'\n", text);
                 printf("\n");
                 goto _EXIT;
@@ -321,50 +324,59 @@ void mcs2bin(char *pFileIn, char *pFileOut)
             switch ( buf[3] )
             {
                 case RECORD_DATA:
-                    /* :xxxxxx00... */
-                    BYTE_ARRAY_TO_UINT16((buf + 1), addr);
-                    memcpy((pBinBuff + addr), (buf + 4), buf[0]);
+                    /* :xxxxxx00........ */
+                    BYTE_ARRAY_TO_UINT16((buf + 1), val16);
 
-                    bufCnt = (addr + buf[0]);
-                    byteCnt += buf[0];
+                    memcpy((pBinBuff + val16), (buf + 4), buf[0]);
+                    binLen = (val16 + buf[0]);
+
+                    addrNext = (addrInit + binLen);
+                    byteCount += buf[0];
+
                     #if DEBUG
                     _dump((buf + 4), buf[0]);
                     #endif
                     break;
                 case RECORD_EX_SEG_ADDR:
+                    /* :02000002.... */
                     break;
                 case RECORD_ST_SEG_ADDR:
+                    /* :04000003........ */
                     break;
                 case RECORD_EX_LNR_ADDR:
-                    /* :02000004... */
-                    BYTE_ARRAY_TO_UINT16((buf + 4), addrExt);
+                    /* :02000004.... */
+                    BYTE_ARRAY_TO_UINT16((buf + 4), val16);
+                    addrInit = (val16 << 16);
 
-                    if (bufCnt > 0)
+                    if (binLen > 0)
                     {
-                        fwrite(_binBuff, bufCnt, 1, pOutput);
+                        fwrite(_binBuff, binLen, 1, pOutput);
                     }
 
-                    offset = (addrExt << 16);
-                    fseek(pOutput, offset, SEEK_SET);
+                    if (addrNext < addrInit)
+                    {
+                        #if DEBUG
+                        printf("add dummy byte %08X - %08X\n", addrNext, addrInit);
+                        #endif
+                        for (i=0; i<(addrInit - addrNext); i++)
+                        {
+                            fwrite(&dummyByte, 1, 1, pOutput);
+                        }
+                    }
 
-                    pBinBuff = &(_binBuff[0]);
-                    bufCnt = 0;
+                    memset(pBinBuff, 0xFF, sizeof(_binBuff));
+                    binLen = 0;
                     break;
                 case RECORD_ST_LNR_ADDR:
-                    /* :04000005... */
-                    BYTE_ARRAY_TO_UINT32((buf + 4), offset);
-                    if (offset > 0)
-                    {
-                        fseek(pOutput, offset, SEEK_SET);
-                    }
+                    /* :04000005........ */
                     break;
                 case RECORD_EOF:
-                    /* :01000001... */
-                    if (bufCnt > 0)
+                    /* :00000001 */
+                    if (binLen > 0)
                     {
-                        fwrite(_binBuff, bufCnt, 1, pOutput);
+                        fwrite(_binBuff, binLen, 1, pOutput);
                     }
-                    printf(".mcs -> .bin: input size is %d\n", byteCnt);
+                    printf(".mcs -> .bin: input size is %d\n", byteCount);
                     goto _EXIT;
                     break;
                 default:
@@ -482,8 +494,10 @@ _EXIT:
 
 void help(void)
 {
-    printf("Usage: %s -e FILE_IN.mcs FILE_OUT.bin\n", APP_NAME);
-    printf("     : %s -d FILE_IN.bin FILE_OUT.mcs\n", APP_NAME);
+    printf("Usage: %s <MODE> <FILE_IN> <FILE_OUT>\n", APP_NAME);
+    printf("\n");
+    printf("%s -e file_in.mcs file_out.bin\n", APP_NAME);
+    printf("%s -d file_in.bin file_out.mcs\n", APP_NAME);
     printf("\n");
 }
 
