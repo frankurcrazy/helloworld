@@ -6,6 +6,14 @@
 #define uint8   unsigned char
 #define uint16  unsigned short
 #define uint32  unsigned int
+#define bool    int
+
+#ifndef TRUE
+#define TRUE  1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 
 #define BYTE_ARRAY_TO_UINT16(p, n) \
     do { \

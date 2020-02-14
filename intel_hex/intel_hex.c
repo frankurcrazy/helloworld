@@ -7,8 +7,14 @@
 
 
 #define APP_NAME   "intel_hex"
-#define TEXT_SIZE  (1024)
-#define DEBUG      (0)
+#if 1
+#define EMPTY_BYTE 0xFF
+#else
+#define EMPTY_BYTE 0x00
+#endif
+#define TEXT_SIZE  1023
+#define DEBUG      0
+
 
 typedef enum
 {
@@ -117,7 +123,8 @@ int _parseLine(
     char  *pString,
     int    stringLen,
     uint8 *pData,
-    int    dataLen
+    int    dataLen,
+    bool   checkFlag
 )
 {
     uint8  nibbleH;
@@ -157,7 +164,7 @@ int _parseLine(
         pData[j++] = byte;
     }
 
-    if (csum != 0)
+    if (( checkFlag ) && (csum != 0))
     {
         printf("ERR: wrong checksum %02Xh\n", csum);
         return 0;
@@ -263,7 +270,7 @@ void mcs2bin(char *pFileIn, char *pFileOut)
     char   *pText;
 
     uint8  *pBinBuff = &(_binBuff[0]);
-    uint8   dummyByte = 0xFF;
+    uint8   dummyByte = EMPTY_BYTE;
     uint32  lineCount = 0;
     uint32  byteCount = 0;
     uint32  binLen  = 0;
@@ -275,6 +282,8 @@ void mcs2bin(char *pFileIn, char *pFileOut)
     int     len;
     int     i;
 
+
+    memset(_binBuff, EMPTY_BYTE, sizeof(_binBuff));
 
     if ((pInput=fopen(pFileIn, "r")) == NULL)
     {
@@ -304,7 +313,8 @@ void mcs2bin(char *pFileIn, char *pFileOut)
                       pText,
                       strlen(pText),
                       buf,
-                      300
+                      300,
+                      TRUE
                   );
 
             #if DEBUG
@@ -364,7 +374,7 @@ void mcs2bin(char *pFileIn, char *pFileOut)
                         }
                     }
 
-                    memset(pBinBuff, 0xFF, sizeof(_binBuff));
+                    memset(_binBuff, EMPTY_BYTE, sizeof(_binBuff));
                     binLen = 0;
                     break;
                 case RECORD_ST_LNR_ADDR:
@@ -491,6 +501,32 @@ _EXIT:
     if ( pOutput ) fclose( pOutput );
 }
 
+/* calculate checksum */
+void hex2checksum(char *pHex)
+{
+    uint8  csum;
+    uint8  buf[300];
+    int    len;
+
+    if (strlen( pHex ) > 0)
+    {
+        len = _parseLine(
+                  pHex,
+                  strlen(pHex),
+                  buf,
+                  300,
+                  FALSE
+              );
+
+        #if DEBUG
+        _dump(buf, len);
+        #endif
+
+        csum = _checksum(buf, len);
+        printf("checksum: %02X\n", csum);
+    }
+}
+
 
 void help(void)
 {
@@ -498,12 +534,25 @@ void help(void)
     printf("\n");
     printf("%s -e file_in.mcs file_out.bin\n", APP_NAME);
     printf("%s -d file_in.bin file_out.mcs\n", APP_NAME);
+    printf("%s -c HEX-string\n", APP_NAME);
     printf("\n");
 }
 
 int main(int argc, char *argv[])
 {
-    if (argc > 3)
+    if (3 == argc)
+    {
+        if (0 == strcmp(argv[1], "-c"))
+        {
+            hex2checksum( argv[2] );
+        }
+        else
+        {
+            printf("ERR: unknown mode '%s'\n", argv[1]);
+            help();
+        }
+    }
+    else if (4 == argc)
     {
         if (0 == strcmp(argv[1], "-e"))
         {

@@ -39,7 +39,8 @@ git init
 [ Clone a repository ]
 
 # Create a working copy of a repository
-cd ~/bar_repos
+mkdir foo_repos
+cd ./bar_repos
 
 # Clone with HTTP
 git clone https://github.com/parrotshen/helloworld.git
@@ -63,7 +64,7 @@ git push origin master
 [ Commands ]
 
 # List the changed files
-git status
+git status -uno
 
 # View all the merge conflicts
 git diff
@@ -76,6 +77,9 @@ git add *
 # Commit changes to head
 git commit -m "comments"
 git commit -a -m "comments"
+
+# Discard changes
+git checkout -- file_name
 
 # Show the commit history
 git log
@@ -92,6 +96,9 @@ git push origin tag_name
 git show tag_name
 
 # Fetch the lastest history
+git reset --hard
 git reset --hard tag_name
 
+# Undo git add before a commit
+git reset file_name
 
