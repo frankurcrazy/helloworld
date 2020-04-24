@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "kdf.h"
+
+
+uint8  ck[16] = {
+ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+ 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00
+};
+uint8  ik[16] = {
+ 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+ 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00, 0x01
+};
+uint8  snn[32] = {
+ /* PLMN-ID: 001.01 */
+ '5', 'G',
+ ':',
+ 'm', 'n', 'c', '0', '0', '1',
+ '.',
+ 'm', 'c', 'c', '0', '0', '1',
+ '.',
+ '3', 'g', 'p', 'p', 'n', 'e', 't', 'w', 'o', 'r', 'k',
+ '.',
+ 'o', 'r', 'g'
+};
+uint8  _rand[16] = {
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+uint8  xres[16] = {
+ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+ 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+};
+
+int main(void)
+{
+    uint8  KEY[32];
+    uint8  S[71];
+    uint8  XRES_STAR[16];
+    uint8  buf[32];
+
+
+    memcpy(KEY,    ck, 16);
+    memcpy(KEY+16, ik, 16);
+
+    /* FC */
+    S[0]  = 0x6B;
+    /* P0 */
+    memcpy(S+1, snn, 32);
+    /* L0 */
+    S[33] = 0x00;
+    S[34] = 0x20;
+    /* P1 */
+    memcpy(S+35, _rand, 16);
+    /* L1 */
+    S[51] = 0x00;
+    S[52] = 0x10;
+    /* P2 */
+    memcpy(S+53, xres, 16);
+    /* L2 */
+    S[69] = 0x00;
+    S[70] = 0x10;
+
+    mem_dump("Key", KEY, 32);
+    mem_dump("S", S, 71);
+
+    kdf(KEY, 32, S, 71, buf);
+    memcpy(XRES_STAR, buf+16, 16);
+    mem_dump("XRES*", XRES_STAR, 16);
+
+
+    return 0;
+}
+

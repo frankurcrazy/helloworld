@@ -15,7 +15,7 @@ uint32 NAS_COUNT = 0;
 int main(void)
 {
     uint8  KEY[32];
-    uint8  S[32];
+    uint8  S[8];
     uint8  K_eNB[32];
 
 

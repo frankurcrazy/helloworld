@@ -74,6 +74,13 @@ git diff HEAD
 git add -i file_name
 git add *
 
+# Remove files from staging
+git rm file_name
+git rm -r dir_name
+
+# Move or rename files
+git mv file_name
+
 # Commit changes to head
 git commit -m "comments"
 git commit -a -m "comments"
@@ -99,6 +106,6 @@ git show tag_name
 git reset --hard
 git reset --hard tag_name
 
-# Undo git add before a commit
+# Undo git add, remove before a commit
 git reset file_name
 
