@@ -7,7 +7,7 @@
 #define DIV_FLOOR(X, Y)  ((X) / (Y))
 
 
-int Talbe_6_3_3_2_1(int L_RA, double f_PRACH, int f_PUSCH, int *kb)
+int Table_6_3_3_2_1(int L_RA, double f_PRACH, int f_PUSCH, int *kb)
 {
     int N_RA_RB = 0;
     int k = 0;
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
             N_gap = 2976;
         }
 
-        N_RA_RB = Talbe_6_3_3_2_1(L_RA, f_PRACH, f_PUSCH, &kb);
+        N_RA_RB = Table_6_3_3_2_1(L_RA, f_PRACH, f_PUSCH, &kb);
         if (0 == N_RA_RB)
         {
             printf("ERR: wrong N_RA_RB %d\n\n", N_RA_RB);
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
             N_gap = 2912;
         }
 
-        N_RA_RB = Talbe_6_3_3_2_1(L_RA, f_PRACH, f_PUSCH, &kb);
+        N_RA_RB = Table_6_3_3_2_1(L_RA, f_PRACH, f_PUSCH, &kb);
         if (0 == N_RA_RB)
         {
             printf("ERR: wrong N_RA_RB %d\n\n", N_RA_RB);

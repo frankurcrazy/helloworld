@@ -18,7 +18,7 @@ typedef enum
 
 
 /* Mapping from logical index i to sequence number u for preamble formats with L_RA = 839 */
-int Talbe_6_3_3_1_3[838] = {
+int Table_6_3_3_1_3[838] = {
  129, 710, 140, 699, 120, 719, 210, 629, 168, 671,  84, 755, 105, 734,  93, 746,  70, 769,  60, 779,
    2, 837,   1, 838,  56, 783, 112, 727, 148, 691,  80, 759,  42, 797,  40, 799,  35, 804,  73, 766,
  146, 693,  31, 808,  28, 811,  30, 809,  27, 812,  29, 810,  24, 815,  48, 791,  68, 771,  74, 765,
@@ -64,7 +64,7 @@ int Talbe_6_3_3_1_3[838] = {
 };
 
 /* Mapping from logical index i to sequence number u for preamble formats with L_RA = 139 */
-int Talbe_6_3_3_1_4[138] = {
+int Table_6_3_3_1_4[138] = {
  1, 138,  2, 137,  3, 136,  4, 135,  5, 134,  6, 133,  7, 132,  8, 131,  9, 130, 10, 129,
 11, 128, 12, 127, 13, 126, 14, 125, 15, 124, 16, 123, 17, 122, 18, 121, 19, 120, 20, 119,
 21, 118, 22, 117, 23, 116, 24, 115, 25, 114, 26, 113, 27, 112, 28, 111, 29, 110, 30, 109,
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
                 return 0;
             }
             N_CS = Table_6_3_3_1_5[ zeroCorrZone ][ restrictedSet ];
-            u = Talbe_6_3_3_1_3[ logicalIndex ];
+            u = Table_6_3_3_1_3[ logicalIndex ];
             break;
         case '3':
             L_RA = 839;
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
                 return 0;
             }
             N_CS = Table_6_3_3_1_6[ zeroCorrZone ][ restrictedSet ];
-            u = Talbe_6_3_3_1_3[ logicalIndex ];
+            u = Table_6_3_3_1_3[ logicalIndex ];
             break;
         case 'A':
         case 'B':
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
                 return 0;
             }
             N_CS = Table_6_3_3_1_7[ zeroCorrZone ];
-            u = Talbe_6_3_3_1_4[ logicalIndex ];
+            u = Table_6_3_3_1_4[ logicalIndex ];
             break;
         default:
             printf("ERR: wrong preamble format %s\n\n", format);
